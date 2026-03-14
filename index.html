@@ -57,14 +57,13 @@
             padding: 1.5rem 2rem;
             margin-bottom: 2rem;
             box-shadow: var(--box-shadow);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
 
         .summary-stats {
-            display: flex;
-            gap: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            width: 100%;
         }
 
         .stat-item {
@@ -229,9 +228,7 @@
 
         @media (max-width: 992px) {
             .info-card {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1.5rem;
+                padding: 1.5rem;
             }
         }
 
@@ -307,9 +304,8 @@
             }
 
             .summary-stats {
-                flex-direction: column;
+                grid-template-columns: 1fr;
                 gap: 1.2rem;
-                width: 100%;
             }
 
             .refresh-btn {
@@ -327,7 +323,6 @@
         <div class="header">
             <h1>辦理進度查詢</h1>
             <p>新北市政府建管便民服務資訊網 (自動化抓取資料)</p>
-            <p>最後檢查時間: <span id="lastCheckTime">--</span></p>
         </div>
 
         <!-- 摘要與操作列 -->
@@ -345,6 +340,11 @@
                     <span class="stat-label">建照號碼</span>
                     <span class="stat-value" style="font-size: 1.2rem; margin-top: 0.3rem;"
                         id="permitInput">111-00275</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">最後檢查時間</span>
+                    <span class="stat-value" style="font-size: 1.1rem; margin-top: 0.3rem;"
+                        id="lastCheckTime">--</span>
                 </div>
             </div>
         </div>
