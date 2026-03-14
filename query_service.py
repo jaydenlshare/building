@@ -235,6 +235,27 @@ class BuildingPermitQuery:
             print(f"[!] 儲存 JSON 檔案發生錯誤: {e}")
             return None
 
+
+def git_pull():
+    """在執行任務前先執行 git pull，確保資料是最新的"""
+    print("\n[*] 正在執行 git pull 拉取最新資料...")
+    try:
+        github_pat = os.environ.get('GITHUB_PAT')
+        github_user = os.environ.get('GITHUB_USER')
+        github_repo = os.environ.get('GITHUB_REPO')
+
+        if github_pat and github_user and github_repo:
+            remote_url = f"https://{github_user}:{github_pat}@github.com/{github_user}/{github_repo}.git"
+            subprocess.run(['git', 'pull', remote_url, 'main', '--rebase'], check=True)
+        else:
+            subprocess.run(['git', 'pull', 'origin', 'main', '--rebase'], check=False)
+        print("[+] Git pull 完成。")
+    except subprocess.CalledProcessError as e:
+        print(f"[!] Git pull 失敗 (這在初次執行或無遠端時可能正常): {e}")
+    except Exception as e:
+        print(f"[!] 執行 Git pull 時發生錯誤: {e}")
+
+
 def git_commit_and_push():
     """檢查 git status，若有 json 檔案變動則執行 add, commit, push"""
     print("\n[*] 正在檢查 Git 狀態...")
@@ -273,24 +294,20 @@ def git_commit_and_push():
         commit_msg = f"update {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
         subprocess.run(['git', 'commit', '-m', commit_msg], check=True)
         
-        # 如果有提供 PAT，設定新的 remote url 進行 HTTPS 拉取與推送
+        # 如果有提供 PAT，設定新的 remote url 進行 HTTPS 推送
         if github_pat and github_user and github_repo:
-            print("[*] 使用 Personal Access Token (PAT) 進行 Git 操作...")
+            print("[*] 使用 Personal Access Token (PAT) 進行 Git 推送...")
             remote_url = f"https://{github_user}:{github_pat}@github.com/{github_user}/{github_repo}.git"
-            
-            # 推送前先拉取，避免衝突 (使用 --rebase 保持提交線整潔)
-            print("[*] 正在執行 git pull --rebase...")
-            subprocess.run(['git', 'pull', remote_url, 'main', '--rebase'], check=True)
             
             # 使用臨時的 remote 名稱來推送，避免修改到原本的 origin 導致 PAT 洩漏在 git config 中
             print("[*] 正在執行 git push...")
             subprocess.run(['git', 'push', remote_url, 'HEAD:main'], check=True)
         else:
-            print("[-] 未設定 GITHUB_PAT 或相關環境變數，將嘗試使用本機預設的 origin 操作...")
-            print("[*] 正在執行 git pull...")
-            subprocess.run(['git', 'pull', 'origin', 'main', '--rebase'], check=False) # 即使失敗也嘗試 push
+            print("[-] 未設定 GITHUB_PAT 或相關環境變數，將嘗試使用本機預設的 origin 推送...")
             print("[*] 正在執行 git push...")
             subprocess.run(['git', 'push', 'origin'], check=True)
+            
+        print(f"[+] Git 操作完成！提交訊息: {commit_msg}")
             
         print(f"[+] Git 操作完成！提交訊息: {commit_msg}")
         
@@ -322,6 +339,9 @@ def run_job(force=False):
     print("\n" + "="*50)
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] 自動查詢任務開始執行 (模式: {mode})")
     print("="*50)
+
+    # 執行最前面的 git pull
+    git_pull()
     
     bot = BuildingPermitQuery()
     
