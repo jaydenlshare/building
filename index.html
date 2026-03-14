@@ -336,19 +336,9 @@
                 <span class="stat-label">最新更新日期</span>
                 <span class="stat-value" style="font-size: 1.2rem; margin-top: 0.3rem;" id="latestDate">--</span>
             </div>
-            <div class="stat-item" style="flex: 1; min-width: 250px;">
-                <label class="stat-label" for="permitInput" style="margin-bottom: 0.4rem;">查詢建照號碼 (格式: 年度-流水號)</label>
-                <div style="display: flex; gap: 0.5rem;">
-                    <input type="text" id="permitInput" value="111-00275" placeholder="例如: 111-00275" 
-                           style="padding: 0.6rem; border: 1px solid #ced4da; border-radius: 6px; font-size: 1rem; flex: 1; font-family: monospace;">
-                    <button class="refresh-btn" onclick="fetchData()">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                          <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
-                          <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
-                        </svg>
-                        載入 / 更新
-                    </button>
-                </div>
+            <div class="stat-item">
+                <span class="stat-label">建照號碼</span>
+                <span class="stat-value" style="font-size: 1.2rem; margin-top: 0.3rem;" id="permitInput">111-00275</span>
             </div>
         </div>
     </div>
@@ -395,7 +385,7 @@
     // 取得資料並渲染畫面
     async function fetchData() {
         const tableBody = document.getElementById('tableBody');
-        const permitNumber = document.getElementById('permitInput').value.trim() || '111-00275';
+        const permitNumber = document.getElementById('permitInput').textContent.trim() || '111-00275';
         
         // 更新網址列參數 (可選，方便分享網址)
         const url = new URL(window.location);
@@ -472,20 +462,13 @@
         }
     }
 
-    // 支援 Enter 鍵搜尋
-    document.getElementById('permitInput').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') {
-            fetchData();
-        }
-    });
-
     // 頁面載入時觸發
     window.addEventListener('DOMContentLoaded', () => {
         // 從網址列參數解析是否有預設 permit
         const urlParams = new URLSearchParams(window.location.search);
         const permitParam = urlParams.get('permit');
         if (permitParam) {
-            document.getElementById('permitInput').value = permitParam;
+            document.getElementById('permitInput').textContent = permitParam;
         }
         fetchData();
     });
