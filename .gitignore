@@ -1,6 +1,5 @@
 # 敏感資訊
 .env
-updateTimeLog.json
 
 # Python 暫存檔
 __pycache__/
