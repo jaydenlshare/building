@@ -15,8 +15,64 @@
             --text-main: #212529;
             --text-muted: #6c757d;
             --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --border-color: #e9ecef;
+            --table-hover: rgba(13, 110, 253, 0.03);
             --border-radius: 12px;
             --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            /* Badge variables */
+            --badge-success-bg: #d1e7dd;
+            --badge-success-text: #0f5132;
+            --badge-warning-bg: #fff3cd;
+            --badge-warning-text: #664d03;
+            --badge-pending-bg: #cff4fc;
+            --badge-pending-text: #055160;
+            --badge-error-bg: #f8d7da;
+            --badge-error-text: #842029;
+            --badge-default-bg: #e2e3e5;
+            --badge-default-text: #41464b;
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #3d8bfd;
+            --primary-hover: #6ea8fe;
+            --secondary-color: #2c3034;
+            --text-main: #f8f9fa;
+            --text-muted: #adb5bd;
+            --bg-color: #212529;
+            --card-bg: #2b3035;
+            --border-color: #495057;
+            --table-hover: rgba(255, 255, 255, 0.05);
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            /* Dark Badge variables */
+            --badge-success-bg: rgba(25, 135, 84, 0.2);
+            --badge-success-text: #75b798;
+            --badge-warning-bg: rgba(255, 193, 7, 0.2);
+            --badge-warning-text: #ffda6a;
+            --badge-pending-bg: rgba(13, 202, 240, 0.2);
+            --badge-pending-text: #6edff6;
+            --badge-error-bg: rgba(220, 53, 69, 0.2);
+            --badge-error-text: #ea868f;
+            --badge-default-bg: rgba(108, 117, 125, 0.2);
+            --badge-default-text: #b1b8bd;
+        }
+
+        .theme-btn {
+            background-color: var(--secondary-color);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .theme-btn:hover {
+            background-color: var(--border-color);
         }
 
         body {
@@ -52,7 +108,7 @@
         }
 
         .info-card {
-            background-color: white;
+            background-color: var(--card-bg);
             border-radius: var(--border-radius);
             padding: 1.5rem 2rem;
             margin-bottom: 2rem;
@@ -85,7 +141,7 @@
         }
 
         .data-table-wrapper {
-            background-color: white;
+            background-color: var(--card-bg);
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
             overflow: hidden;
@@ -100,7 +156,7 @@
 
         thead {
             background-color: var(--secondary-color);
-            border-bottom: 2px solid #e9ecef;
+            border-bottom: 2px solid var(--border-color);
         }
 
         th {
@@ -112,7 +168,7 @@
 
         td {
             padding: 1.25rem 1.5rem;
-            border-bottom: 1px solid #e9ecef;
+            border-bottom: 1px solid var(--border-color);
             vertical-align: middle;
         }
 
@@ -125,7 +181,7 @@
         }
 
         tbody tr:hover {
-            background-color: rgba(13, 110, 253, 0.03);
+            background-color: var(--table-hover);
         }
 
         /* 欄位特定樣式 */
@@ -133,7 +189,7 @@
             font-family: monospace;
             font-size: 1.05rem;
             font-weight: 500;
-            color: #495057;
+            color: var(--text-main);
         }
 
         .col-date {
@@ -150,7 +206,7 @@
         }
 
         .col-info {
-            color: #495057;
+            color: var(--text-main);
             font-size: 0.95rem;
             line-height: 1.5;
             max-width: 400px;
@@ -167,28 +223,28 @@
 
         /* 狀態標籤顏色判斷 */
         .status-success {
-            background-color: #d1e7dd;
-            color: #0f5132;
+            background-color: var(--badge-success-bg);
+            color: var(--badge-success-text);
         }
 
         .status-warning {
-            background-color: #fff3cd;
-            color: #664d03;
+            background-color: var(--badge-warning-bg);
+            color: var(--badge-warning-text);
         }
 
         .status-pending {
-            background-color: #cff4fc;
-            color: #055160;
+            background-color: var(--badge-pending-bg);
+            color: var(--badge-pending-text);
         }
 
         .status-error {
-            background-color: #f8d7da;
-            color: #842029;
+            background-color: var(--badge-error-bg);
+            color: var(--badge-error-text);
         }
 
         .status-default {
-            background-color: #e2e3e5;
-            color: #41464b;
+            background-color: var(--badge-default-bg);
+            color: var(--badge-default-text);
         }
 
         .loading {
@@ -201,8 +257,8 @@
         .error-message {
             text-align: center;
             padding: 3rem;
-            color: #842029;
-            background-color: #f8d7da;
+            color: var(--badge-error-text);
+            background-color: var(--badge-error-bg);
             border-radius: var(--border-radius);
             margin-top: 2rem;
         }
@@ -258,12 +314,12 @@
 
             /* 將每一列 (tr) 變成卡片樣式 */
             tbody tr {
-                background: white;
+                background: var(--card-bg);
                 margin-bottom: 1.5rem;
                 border-radius: var(--border-radius);
                 box-shadow: var(--box-shadow);
                 padding: 1rem;
-                border: 1px solid #e9ecef;
+                border: 1px solid var(--border-color);
             }
 
             /* 將 td 設定為區塊顯示，加上底部留白，並利用 grid 或 flex 排版標題與內容 */
@@ -272,7 +328,7 @@
                 flex-direction: column;
                 align-items: flex-start;
                 padding: 0.8rem 0;
-                border-bottom: 1px dashed #e9ecef;
+                border-bottom: 1px dashed var(--border-color);
                 text-align: left;
                 width: auto;
             }
@@ -318,9 +374,25 @@
 </head>
 
 <body>
+    <script>
+        // 初始化主題設定（避免閃爍）
+        function getCookie(name) {
+            const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+            if (match) return match[2];
+            return null;
+        }
+
+        const savedTheme = getCookie('theme');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        }
+    </script>
 
     <div class="container">
         <div class="header">
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 1rem;">
+                <button id="themeToggleBtn" class="theme-btn">☀️</button>
+            </div>
             <h1>辦理進度查詢</h1>
             <p>新北市政府建管便民服務資訊網 (自動化抓取資料)</p>
         </div>
@@ -343,8 +415,7 @@
                 </div>
                 <div class="stat-item">
                     <span class="stat-label">最後檢查時間</span>
-                    <span class="stat-value" style="font-size: 1.1rem; margin-top: 0.3rem;"
-                        id="lastCheckTime">--</span>
+                    <span class="stat-value" style="font-size: 1.1rem; margin-top: 0.3rem;" id="lastCheckTime">--</span>
                 </div>
             </div>
         </div>
@@ -400,7 +471,7 @@
                 // 加入時間戳記避免快取，根據輸入的建照號碼載入 json
                 const responsePromise = fetch(`${permitNumber}.json?t=${new Date().getTime()}`);
                 const logResponsePromise = fetch(`updateTimeLog.json?t=${new Date().getTime()}`).catch(() => null); // 不阻擋錯誤
-                
+
                 const [response, logResponse] = await Promise.all([responsePromise, logResponsePromise]);
 
                 if (!response.ok) {
@@ -411,10 +482,10 @@
                 }
 
                 const jsonResponse = await response.json();
-                
+
                 // 相容舊格式 (純陣列) 與新格式 (包含 updatedTime 的物件，防呆)
                 const data = Array.isArray(jsonResponse) ? jsonResponse : (jsonResponse.data || []);
-                
+
                 let updatedTime = '--';
                 if (logResponse && logResponse.ok) {
                     const logData = await logResponse.json();
@@ -422,7 +493,7 @@
                 } else if (jsonResponse.updatedTime) { // 如果只抓到包裝過的舊格式作防呆
                     updatedTime = jsonResponse.updatedTime;
                 }
-                
+
                 document.getElementById('lastCheckTime').textContent = updatedTime;
 
                 if (data.length === 0) {
@@ -447,8 +518,8 @@
 
                     // 執照資訊簡單排版 (將起造人與地址分行)
                     const formattedInfo = item.info
-                        .replace('建照地址：', '<br><span style="color:#6c757d; font-size:0.85em;">📍 地址：</span>')
-                        .replace('負責人：', '<br><span style="color:#6c757d; font-size:0.85em;">👤 負責人：</span>');
+                        .replace('建照地址：', '<br><span style="color:var(--text-muted); font-size:0.85em;">📍 地址：</span>')
+                        .replace('負責人：', '<br><span style="color:var(--text-muted); font-size:0.85em;">👤 負責人：</span>');
 
                     tr.innerHTML = `
                     <td data-label="掛號/辦理號碼" class="col-id">${item.idNumber || '-'}</td>
@@ -485,14 +556,37 @@
             // 從網址列參數解析是否有預設 permit
             const urlParams = new URLSearchParams(window.location.search);
             const permitParam = urlParams.get('permit');
-            
+
             if (permitParam && permitParam.trim() !== '') {
                 document.getElementById('permitInput').textContent = permitParam.trim();
             } else {
                 document.getElementById('permitInput').textContent = '111-00275';
             }
-            
+
             fetchData();
+
+            // 綁定主題切換按鈕
+            const themeToggleBtn = document.getElementById('themeToggleBtn');
+            function updateBtnText() {
+                const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+                themeToggleBtn.innerHTML = currentTheme === 'dark' ? '☀️ ' : '🌙 ';
+            }
+
+            // 初始設定按鈕文字
+            updateBtnText();
+
+            themeToggleBtn.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', newTheme);
+
+                // 儲存至 Cookie (期限 1 年)
+                const date = new Date();
+                date.setTime(date.getTime() + (365 * 24 * 60 * 60 * 1000));
+                document.cookie = "theme=" + newTheme + "; expires=" + date.toUTCString() + "; path=/";
+
+                updateBtnText();
+            });
         });
     </script>
 
