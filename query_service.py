@@ -206,14 +206,15 @@ class BuildingPermitQuery:
         # 依照 idNumber 進行降冪排序
         result_data.sort(key=lambda x: x.get("idNumber", ""), reverse=True)
 
-        # 將結果存成 JSON 檔案，黨名為建照號碼 (例如 111-00275.json)
-        # 我們可以從 payload 取得 I1, I2 或是傳遞進來
-        # 在這裡我們先讓外部傳入預期的檔名，或從第一筆資料取巧 (但如果是空陣列就沒辦法)
-        # 所以建議從 function 參數去指定檔名，這裡我們修改 parameter
+        updated_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        output_data = {
+            "updatedTime": updated_time,
+            "data": result_data
+        }
 
         try:
             with open(filename, "w", encoding="utf-8") as f:
-                json.dump(result_data, f, ensure_ascii=False, indent=4)
+                json.dump(output_data, f, ensure_ascii=False, indent=4)
             print(f"[+] 已將查詢結果解析並存為: {filename} (共 {len(result_data)} 筆資料)")
             return filename
         except Exception as e:
