@@ -5,6 +5,7 @@ import json
 import re
 import subprocess
 import schedule
+import os
 from datetime import datetime
 from bs4 import BeautifulSoup
 import urllib3
@@ -235,18 +236,35 @@ class BuildingPermitQuery:
             return None
 
 
-def git_commit_and_push():
-    """檢查 git status，若有 html 或 json 檔案變動則執行 add, commit, push"""
+    """檢查 git status，若有 json 檔案變動則執行 add, commit, push"""
     print("\n[*] 正在檢查 Git 狀態...")
     try:
-        # 首先將所有 html 與 json 檔案加入追蹤
-        subprocess.run(['git', 'add', '*.html', '*.json'], check=True)
+        # 從環境變數讀取 Git 設定 (對應 .env)
+        git_user = os.environ.get('GIT_USERNAME', 'AutoQueryBot')
+        git_email = os.environ.get('GIT_EMAIL', 'bot@autoquery.local')
+        github_pat = os.environ.get('GITHUB_PAT')
+        github_user = os.environ.get('GITHUB_USER')
+        github_repo = os.environ.get('GITHUB_REPO')
+
+        # 確保 Git 使用者設定存在
+        try:
+            subprocess.run(['git', 'config', 'user.name'], check=True, capture_output=True)
+        except subprocess.CalledProcessError:
+            subprocess.run(['git', 'config', '--global', 'user.name', git_user], check=True)
+            
+        try:
+            subprocess.run(['git', 'config', 'user.email'], check=True, capture_output=True)
+        except subprocess.CalledProcessError:
+            subprocess.run(['git', 'config', '--global', 'user.email', git_email], check=True)
+
+        # 首先將所有 json 檔案與 HTML 加入追蹤
+        subprocess.run(['git', 'add', 'index.html', '*.json'], check=True)
         
         # 檢查已加入暫存區 (Staging Area) 的檔案是否有變動
-        status_result = subprocess.run(['git', 'status', '--porcelain', '*.html', '*.json'], capture_output=True, text=True)
+        status_result = subprocess.run(['git', 'status', '--porcelain', 'index.html', '*.json'], capture_output=True, text=True)
         
         if not status_result.stdout.strip():
-            print("[+] 沒有偵測到 HTML 或是 JSON 檔案變動，略過提交。")
+            print("[+] 沒有偵測到檔案變動，略過提交。")
             return
 
         print("[*] 偵測到 HTML 或 JSON 檔案變動，開始執行 Git 推送...")
@@ -255,8 +273,17 @@ def git_commit_and_push():
         commit_msg = f"update {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
         subprocess.run(['git', 'commit', '-m', commit_msg], check=True)
         
-        # 執行 git push
-        subprocess.run(['git', 'push', 'origin'], check=True)
+        # 如果有提供 PAT，設定新的 remote url 進行 HTTPS 推送
+        if github_pat and github_user and github_repo:
+            print("[*] 使用 Personal Access Token (PAT) 進行 HTTPS 推送...")
+            remote_url = f"https://{github_user}:{github_pat}@github.com/{github_user}/{github_repo}.git"
+            
+            # 使用臨時的 remote 名稱來推送，避免修改到原本的 origin 導致 PAT 洩漏在 git config 中
+            subprocess.run(['git', 'push', remote_url, 'HEAD:main'], check=True)
+        else:
+            print("[-] 未設定 GITHUB_PAT 或相關環境變數，將嘗試使用本機預設的 origin 推送...")
+            subprocess.run(['git', 'push', 'origin'], check=True)
+            
         print(f"[+] Git 操作完成！提交訊息: {commit_msg}")
         
     except subprocess.CalledProcessError as e:
@@ -274,9 +301,9 @@ def run_job():
     
     # 新增可設定多筆建案查詢的陣列，格式為 ["年度-流水號", "年度-流水號"]
     permits = [
-        "111-00275",
-        "110-00402",
-        "112-00141"
+        # "111-00275",
+        # "110-00402",
+        # "112-00141"
     ]
     
     for permit in permits:
@@ -316,10 +343,10 @@ if __name__ == "__main__":
     # 啟動時先執行一次
     run_job()
     
-    # 使用 schedule 設定排程器：每小時執行一次
-    schedule.every().hour.do(run_job)
+    # 使用 schedule 設定排程器：每 10 分鐘執行一次
+    schedule.every(10).minutes.do(run_job)
     
-    print("\n[*] 進入待命狀態，將於每個小時自動執行...")
+    print("\n[*] 進入待命狀態，將於每 10 分鐘自動執行...")
     try:
         while True:
             schedule.run_pending()

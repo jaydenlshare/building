@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  query-service:
+    build: .
+    container_name: query_service_container
+    restart: unless-stopped
+    volumes:
+      # 掛載目前目錄，使更新能寫回本機，包含 index.html, json 和 python 腳本
+      - .:/app
+    env_file:
+      - .env
+    environment:
+      # 設定時區為台北
+      - TZ=Asia/Taipei
