@@ -273,15 +273,23 @@ def git_commit_and_push():
         commit_msg = f"update {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
         subprocess.run(['git', 'commit', '-m', commit_msg], check=True)
         
-        # 如果有提供 PAT，設定新的 remote url 進行 HTTPS 推送
+        # 如果有提供 PAT，設定新的 remote url 進行 HTTPS 拉取與推送
         if github_pat and github_user and github_repo:
-            print("[*] 使用 Personal Access Token (PAT) 進行 HTTPS 推送...")
+            print("[*] 使用 Personal Access Token (PAT) 進行 Git 操作...")
             remote_url = f"https://{github_user}:{github_pat}@github.com/{github_user}/{github_repo}.git"
             
+            # 推送前先拉取，避免衝突 (使用 --rebase 保持提交線整潔)
+            print("[*] 正在執行 git pull --rebase...")
+            subprocess.run(['git', 'pull', remote_url, 'main', '--rebase'], check=True)
+            
             # 使用臨時的 remote 名稱來推送，避免修改到原本的 origin 導致 PAT 洩漏在 git config 中
+            print("[*] 正在執行 git push...")
             subprocess.run(['git', 'push', remote_url, 'HEAD:main'], check=True)
         else:
-            print("[-] 未設定 GITHUB_PAT 或相關環境變數，將嘗試使用本機預設的 origin 推送...")
+            print("[-] 未設定 GITHUB_PAT 或相關環境變數，將嘗試使用本機預設的 origin 操作...")
+            print("[*] 正在執行 git pull...")
+            subprocess.run(['git', 'pull', 'origin', 'main', '--rebase'], check=False) # 即使失敗也嘗試 push
+            print("[*] 正在執行 git push...")
             subprocess.run(['git', 'push', 'origin'], check=True)
             
         print(f"[+] Git 操作完成！提交訊息: {commit_msg}")
