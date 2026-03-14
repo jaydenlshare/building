@@ -235,7 +235,7 @@ class BuildingPermitQuery:
             print(f"[!] 儲存 JSON 檔案發生錯誤: {e}")
             return None
 
-
+def git_commit_and_push():
     """檢查 git status，若有 json 檔案變動則執行 add, commit, push"""
     print("\n[*] 正在檢查 Git 狀態...")
     try:
@@ -301,7 +301,7 @@ def run_job():
     
     # 新增可設定多筆建案查詢的陣列，格式為 ["年度-流水號", "年度-流水號"]
     permits = [
-        # "111-00275",
+        "111-00275",
         # "110-00402",
         # "112-00141"
     ]
