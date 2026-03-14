@@ -30,11 +30,14 @@
    docker-compose down
    ```
 
-## 技術細節說明
+## 技術細節與排程說明
 
-- **排程執行**：容器啟動後，內部的 `schedule` 會像在本機一樣，每 10 分鐘自動執行一次查詢。
+- **執行模式 (`EXECUTION_MODE`)**：您可以在 `.env` 中切換模式：
+  - `PROD` (預設)：**週一至週五 10:00~17:00** 之間執行，每 **1 小時** 啟動一次。
+  - `TEST`：每 **10 分鐘** 執行一次，且**不限**於任何時段，適合測試連線狀快。
+- **排程執行**：容器啟動後，內部的 `schedule` 會根據上述模式自動執行。
 - **檔案同步**：透過 `docker-compose.yml` 內的 `volumes` 設定，容器會將目前目錄掛載為 `/app`，所以容器內產生的 `.json` 與 `.html` 會直接呈現在您本機資料夾中。
-- **Git 自動推播機制**：這支程式會自動執行 `git commit` 以及 `git push`。為了解決容器內沒有 SSH 憑證的問題：
-  1. `docker-compose.yml` 已經設定會將您的本機 SSH 金鑰 `~/.ssh` 以唯讀 (`ro`) 的方式掛載進入容器（路徑對應為 `/root/.ssh`）。
-  2. 若本機沒有 `~/.ssh` 或是權限問題，您也可以改用 HTTPS 加上 Personal Access Token 的方式，或是在容器啟動後進入設定。
-  3. `query_service.py` 已更新，如果容器內抓不到本機的 `~/.gitconfig`，它會自動以 `AutoQueryBot` 為名稱做為 Git 使用者。
+- **Git 自動推播機制**：這支程式會自動執行 `git commit` 以及 `git push`。為了解決容器內的身分問題：
+  1. 優先使用 `.env` 中的 `GITHUB_PAT` 進行 HTTPS 改寫推送（推薦）。
+  2. 若未設定 PAT，則會嘗試使用掛載的 SSH 金鑰進行推送。
+  3. `query_service.py` 已更新，如果容器內抓不到使用者身分，它會自動以 `AutoQueryBot` 為名稱做為 Git 使用者。

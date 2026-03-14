@@ -292,9 +292,27 @@ def git_commit_and_push():
         print("[!] 找不到 git 指令，請確認系統是否已安裝 Git 並加入環境變數。")
 
 
-def run_job():
+def is_working_hours():
+    """檢查目前是否為 GMT+8 的上班時間 (週一至週五 10:00~17:00)"""
+    now = datetime.now()
+    # 0 = Monday, 4 = Friday
+    is_weekday = 0 <= now.weekday() <= 4
+    # 10:00 <= now <= 17:59 (17:00 是最後一次啟動時間)
+    is_hour_window = 10 <= now.hour <= 17
+    return is_weekday and is_hour_window
+
+
+def run_job(force=False):
+    mode = os.environ.get('EXECUTION_MODE', 'PROD').upper()
+    
+    # 如果不是強制執行，且不是 TEST 模式，則檢查是否在上班時間內
+    if not force and mode != 'TEST':
+        if not is_working_hours():
+            print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] 非執行時間 (六日或非 10:00-17:00)，跳過此次執行。")
+            return
+
     print("\n" + "="*50)
-    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] 自動查詢任務開始執行")
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] 自動查詢任務開始執行 (模式: {mode})")
     print("="*50)
     
     bot = BuildingPermitQuery()
@@ -336,17 +354,24 @@ def run_job():
 
 
 if __name__ == "__main__":
+    mode = os.environ.get('EXECUTION_MODE', 'TEST').upper()
+    
     print("="*50)
-    print("新北市政府建管便民服務資訊網 - 自動排程查詢服務已啟動")
+    print(f"新北市政府建管便民服務資訊網 - 自動排程查詢服務已啟動 ({mode} 模式)")
     print("="*50)
     
-    # 啟動時先執行一次
-    run_job()
+    # 啟動時先執行一次 (不受時間視窗限制，方便重啟後立即確認)
+    run_job(force=True)
     
-    # 使用 schedule 設定排程器：每 10 分鐘執行一次
-    schedule.every(10).minutes.do(run_job)
-    
-    print("\n[*] 進入待命狀態，將於每 10 分鐘自動執行...")
+    if mode == 'TEST':
+        # 測試模式：每 10 分鐘執行一次，不限時間
+        schedule.every(10).minutes.do(run_job)
+        print("\n[*] 測試模式：進入待命狀態，將於每 10 分鐘自動執行 (不限時段)...")
+    else:
+        # 正式模式：每一小時執行一次 (內含時間視窗檢查)
+        schedule.every(1).hours.do(run_job)
+        print("\n[*] 正式模式：進入待命狀態，將於每 1 小時自動執行 (僅限平日 10:00-17:00)...")
+
     try:
         while True:
             schedule.run_pending()
