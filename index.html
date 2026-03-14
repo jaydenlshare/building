@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-Hant-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -175,7 +176,7 @@
             background-color: #fff3cd;
             color: #664d03;
         }
-        
+
         .status-pending {
             background-color: #cff4fc;
             color: #055160;
@@ -197,7 +198,7 @@
             color: var(--text-muted);
             font-size: 1.1rem;
         }
-        
+
         .error-message {
             text-align: center;
             padding: 3rem;
@@ -206,7 +207,7 @@
             border-radius: var(--border-radius);
             margin-top: 2rem;
         }
-        
+
         .refresh-btn {
             background-color: var(--primary-color);
             color: white;
@@ -221,7 +222,7 @@
             align-items: center;
             gap: 0.5rem;
         }
-        
+
         .refresh-btn:hover {
             background-color: var(--primary-hover);
         }
@@ -241,7 +242,7 @@
                 box-shadow: none;
                 border: none;
             }
-            
+
             table {
                 display: block;
                 width: 100%;
@@ -252,7 +253,8 @@
                 display: none;
             }
 
-            tbody, tr {
+            tbody,
+            tr {
                 display: block;
                 width: 100%;
             }
@@ -295,7 +297,8 @@
             }
 
             /* 手機版字體調整 */
-            .col-class, .col-info {
+            .col-class,
+            .col-info {
                 max-width: 100%;
             }
 
@@ -317,122 +320,120 @@
         }
     </style>
 </head>
+
 <body>
 
-<div class="container">
-    <div class="header">
-        <h1>建造執照辦理進度查詢系統</h1>
-        <p>新北市政府建管便民服務資訊網 (自動化抓取資料)</p>
-    </div>
+    <div class="container">
+        <div class="header">
+            <h1>建造執照辦理進度查詢系統</h1>
+            <p>新北市政府建管便民服務資訊網 (自動化抓取資料)</p>
+        </div>
 
-    <!-- 摘要與操作列 -->
-    <div class="info-card">
-        <div class="summary-stats">
-            <div class="stat-item">
-                <span class="stat-label">總筆數</span>
-                <span class="stat-value" id="totalCount">--</span>
+        <!-- 摘要與操作列 -->
+        <div class="info-card">
+            <div class="summary-stats">
+                <div class="stat-item">
+                    <span class="stat-label">總筆數</span>
+                    <span class="stat-value" id="totalCount">--</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">最新更新日期</span>
+                    <span class="stat-value" style="font-size: 1.2rem; margin-top: 0.3rem;" id="latestDate">--</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">建照號碼</span>
+                    <span class="stat-value" style="font-size: 1.2rem; margin-top: 0.3rem;"
+                        id="permitInput">111-00275</span>
+                </div>
             </div>
-            <div class="stat-item">
-                <span class="stat-label">最新更新日期</span>
-                <span class="stat-value" style="font-size: 1.2rem; margin-top: 0.3rem;" id="latestDate">--</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">建照號碼</span>
-                <span class="stat-value" style="font-size: 1.2rem; margin-top: 0.3rem;" id="permitInput">111-00275</span>
-            </div>
+        </div>
+
+        <!-- 資料表格 -->
+        <div class="data-table-wrapper">
+            <table id="resultsTable">
+                <thead>
+                    <tr>
+                        <th width="15%">掛號/辦理號碼</th>
+                        <th width="12%">辦理日期</th>
+                        <th width="20%">申請類別/項目</th>
+                        <th width="35%">起造人與建照地址</th>
+                        <th width="18%">審核進度</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <tr>
+                        <td colspan="5" class="loading">
+                            正在載入 result.json 的資料...<br>
+                            <small style="font-size: 0.9rem; margin-top: 0.5rem; display: block;">如果您直接以 file://
+                                協議開啟，瀏覽器可能因為 CORS 政策阻擋讀取，您會需要透過 Live Server 等擴充功能開啟網頁。</small>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
-    <!-- 資料表格 -->
-    <div class="data-table-wrapper">
-        <table id="resultsTable">
-            <thead>
-                <tr>
-                    <th width="15%">掛號/辦理號碼</th>
-                    <th width="12%">辦理日期</th>
-                    <th width="20%">申請類別/項目</th>
-                    <th width="35%">起造人與建照地址</th>
-                    <th width="18%">審核進度</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody">
-                <tr>
-                    <td colspan="5" class="loading">
-                        正在載入 result.json 的資料...<br>
-                        <small style="font-size: 0.9rem; margin-top: 0.5rem; display: block;">如果您直接以 file:// 協議開啟，瀏覽器可能因為 CORS 政策阻擋讀取，您會需要透過 Live Server 等擴充功能開啟網頁。</small>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<script>
-    // 取得 Badge 顏色的輔助函數
-    function getStatusBadgeClass(status) {
-        if (status.includes('同意備查') || status.includes('准予開工')) {
-            return 'status-success';
-        } else if (status.includes('補正') || status.includes('限期改正')) {
-            return 'status-warning';
-        } else if (status.includes('待審') || status.includes('掛號')) {
-            return 'status-pending';
-        } else if (status.includes('退件') || status.includes('駁回')) {
-            return 'status-error';
+    <script>
+        // 取得 Badge 顏色的輔助函數
+        function getStatusBadgeClass(status) {
+            if (status.includes('同意備查') || status.includes('准予開工')) {
+                return 'status-success';
+            } else if (status.includes('補正') || status.includes('限期改正')) {
+                return 'status-warning';
+            } else if (status.includes('待審') || status.includes('掛號')) {
+                return 'status-pending';
+            } else if (status.includes('退件') || status.includes('駁回')) {
+                return 'status-error';
+            }
+            return 'status-default';
         }
-        return 'status-default';
-    }
 
-    // 取得資料並渲染畫面
-    async function fetchData() {
-        const tableBody = document.getElementById('tableBody');
-        const permitNumber = document.getElementById('permitInput').textContent.trim() || '111-00275';
-        
-        // 更新網址列參數 (可選，方便分享網址)
-        const url = new URL(window.location);
-        url.searchParams.set('permit', permitNumber);
-        window.history.pushState({}, '', url);
-        
-        tableBody.innerHTML = `<tr><td colspan="5" class="loading">正在載入 ${permitNumber}.json ...</td></tr>`;
-        
-        try {
-            // 加入時間戳記避免快取，根據輸入的建照號碼載入 json
-            const response = await fetch(`${permitNumber}.json?t=${new Date().getTime()}`);
-            
-            if (!response.ok) {
-                if (response.status === 404) {
-                    throw new Error(`找不到 ${permitNumber}.json。請確認該建照號碼是否已透過 python 腳本更新。`);
+        // 取得資料並渲染畫面
+        async function fetchData() {
+            const tableBody = document.getElementById('tableBody');
+            const permitNumber = document.getElementById('permitInput').textContent.trim() || '111-00275';
+
+            tableBody.innerHTML = `<tr><td colspan="5" class="loading">正在載入 ${permitNumber}.json ...</td></tr>`;
+
+            try {
+                // 加入時間戳記避免快取，根據輸入的建照號碼載入 json
+                const response = await fetch(`${permitNumber}.json?t=${new Date().getTime()}`);
+
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        throw new Error(`找不到 ${permitNumber}.json。請確認該建照號碼是否已透過 python 腳本更新。`);
+                    }
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            
-            if (data.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 3rem;">目前沒有查詢到任何資料</td></tr>`;
-                document.getElementById('totalCount').textContent = '0';
-                return;
-            }
 
-            // 更新統計資訊
-            document.getElementById('totalCount').textContent = data.length;
-            // 資料已經過 python script 排序，第一筆理當是最新的
-            document.getElementById('latestDate').textContent = data[0].date || '--';
+                const data = await response.json();
 
-            // 清空載入中狀態並渲染 HTML
-            tableBody.innerHTML = '';
-            
-            data.forEach(item => {
-                const tr = document.createElement('tr');
-                
-                // 狀態樣式處理
-                const badgeClass = getStatusBadgeClass(item.status);
-                
-                // 執照資訊簡單排版 (將起造人與地址分行)
-                const formattedInfo = item.info
-                    .replace('建照地址：', '<br><span style="color:#6c757d; font-size:0.85em;">📍 地址：</span>')
-                    .replace('負責人：', '<br><span style="color:#6c757d; font-size:0.85em;">👤 負責人：</span>');
+                if (data.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 3rem;">目前沒有查詢到任何資料</td></tr>`;
+                    document.getElementById('totalCount').textContent = '0';
+                    return;
+                }
 
-                tr.innerHTML = `
+                // 更新統計資訊
+                document.getElementById('totalCount').textContent = data.length;
+                // 資料已經過 python script 排序，第一筆理當是最新的
+                document.getElementById('latestDate').textContent = data[0].date || '--';
+
+                // 清空載入中狀態並渲染 HTML
+                tableBody.innerHTML = '';
+
+                data.forEach(item => {
+                    const tr = document.createElement('tr');
+
+                    // 狀態樣式處理
+                    const badgeClass = getStatusBadgeClass(item.status);
+
+                    // 執照資訊簡單排版 (將起造人與地址分行)
+                    const formattedInfo = item.info
+                        .replace('建照地址：', '<br><span style="color:#6c757d; font-size:0.85em;">📍 地址：</span>')
+                        .replace('負責人：', '<br><span style="color:#6c757d; font-size:0.85em;">👤 負責人：</span>');
+
+                    tr.innerHTML = `
                     <td data-label="掛號/辦理號碼" class="col-id">${item.idNumber || '-'}</td>
                     <td data-label="辦理日期" class="col-date">${item.date || '-'}</td>
                     <td data-label="申請類別/項目" class="col-class">${item.class || '-'}</td>
@@ -441,12 +442,12 @@
                         <span class="status-badge ${badgeClass}">${item.status || '-'}</span>
                     </td>
                 `;
-                tableBody.appendChild(tr);
-            });
+                    tableBody.appendChild(tr);
+                });
 
-        } catch (error) {
-            console.error('Fetching JSON failed:', error);
-            tableBody.innerHTML = `
+            } catch (error) {
+                console.error('Fetching JSON failed:', error);
+                tableBody.innerHTML = `
                 <tr>
                     <td colspan="5">
                         <div class="error-message">
@@ -457,22 +458,23 @@
                     </td>
                 </tr>
             `;
-            document.getElementById('totalCount').textContent = '--';
-            document.getElementById('latestDate').textContent = '--';
+                document.getElementById('totalCount').textContent = '--';
+                document.getElementById('latestDate').textContent = '--';
+            }
         }
-    }
 
-    // 頁面載入時觸發
-    window.addEventListener('DOMContentLoaded', () => {
-        // 從網址列參數解析是否有預設 permit
-        const urlParams = new URLSearchParams(window.location.search);
-        const permitParam = urlParams.get('permit');
-        if (permitParam) {
-            document.getElementById('permitInput').textContent = permitParam;
-        }
-        fetchData();
-    });
-</script>
+        // 頁面載入時觸發
+        window.addEventListener('DOMContentLoaded', () => {
+            // 從網址列參數解析是否有預設 permit
+            const urlParams = new URLSearchParams(window.location.search);
+            const permitParam = urlParams.get('permit');
+            if (permitParam) {
+                document.getElementById('permitInput').textContent = permitParam;
+            }
+            fetchData();
+        });
+    </script>
 
 </body>
+
 </html>
