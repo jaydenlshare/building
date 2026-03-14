@@ -3,6 +3,9 @@ import ddddocr
 import time
 import json
 import re
+import subprocess
+import schedule
+from datetime import datetime
 from bs4 import BeautifulSoup
 import urllib3
 
@@ -218,9 +221,39 @@ class BuildingPermitQuery:
             return None
 
 
-if __name__ == "__main__":
-    print("="*50)
-    print("新北市政府建管便民服務資訊網 - 自動查詢系統")
+def git_commit_and_push():
+    """檢查 git status，若有 html 或 json 檔案變動則執行 add, commit, push"""
+    print("\n[*] 正在檢查 Git 狀態...")
+    try:
+        # 首先將所有 html 與 json 檔案加入追蹤
+        subprocess.run(['git', 'add', '*.html', '*.json'], check=True)
+        
+        # 檢查已加入暫存區 (Staging Area) 的檔案是否有變動
+        status_result = subprocess.run(['git', 'status', '--porcelain', '*.html', '*.json'], capture_output=True, text=True)
+        
+        if not status_result.stdout.strip():
+            print("[+] 沒有偵測到 HTML 或是 JSON 檔案變動，略過提交。")
+            return
+
+        print("[*] 偵測到 HTML 或 JSON 檔案變動，開始執行 Git 推送...")
+        
+        # 產生時間戳記提交訊息
+        commit_msg = f"update {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+        subprocess.run(['git', 'commit', '-m', commit_msg], check=True)
+        
+        # 執行 git push
+        subprocess.run(['git', 'push', 'origin'], check=True)
+        print(f"[+] Git 操作完成！提交訊息: {commit_msg}")
+        
+    except subprocess.CalledProcessError as e:
+        print(f"[!] Git 操作失敗: {e}")
+    except FileNotFoundError:
+        print("[!] 找不到 git 指令，請確認系統是否已安裝 Git 並加入環境變數。")
+
+
+def run_job():
+    print("\n" + "="*50)
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] 自動查詢任務開始執行")
     print("="*50)
     
     bot = BuildingPermitQuery()
@@ -228,7 +261,8 @@ if __name__ == "__main__":
     # 新增可設定多筆建案查詢的陣列，格式為 ["年度-流水號", "年度-流水號"]
     permits = [
         "111-00275",
-        "110-00402"
+        "110-00402",
+        "112-00141"
     ]
     
     for permit in permits:
@@ -255,3 +289,26 @@ if __name__ == "__main__":
             print(f"[+] {permit} 執行完畢，結果請見 {permit}.html 與 {file_path}")
         else:
             print(f"[-] {permit} 查詢失敗。")
+            
+    # 執行完畢後做 Git 操作
+    git_commit_and_push()
+
+
+if __name__ == "__main__":
+    print("="*50)
+    print("新北市政府建管便民服務資訊網 - 自動排程查詢服務已啟動")
+    print("="*50)
+    
+    # 啟動時先執行一次
+    run_job()
+    
+    # 使用 schedule 設定排程器：每小時執行一次
+    schedule.every().hour.do(run_job)
+    
+    print("\n[*] 進入待命狀態，將於每個小時自動執行...")
+    try:
+        while True:
+            schedule.run_pending()
+            time.sleep(1)
+    except (KeyboardInterrupt, SystemExit):
+        print("\n[!] 排程服務已被手動中止。")
