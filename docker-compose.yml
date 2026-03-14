@@ -4,7 +4,7 @@ services:
   query-service:
     build: .
     container_name: query_service_container
-    restart: unless-stopped
+    restart: always
     volumes:
       # 掛載目前目錄，使更新能寫回本機，包含 index.html, json 和 python 腳本
       - .:/app
