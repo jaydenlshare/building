@@ -145,7 +145,7 @@ class BuildingPermitQuery:
                     except Exception as e:
                         print(f"[!] 儲存 HTML 檔案發生錯誤: {e}")
                         
-                    return self.parse_and_save_json(html_result, filename=f"{permit_number}.json")
+                    return self.parse_and_save_json(html_result, filename=f"{permit_number}.json", permit_number=permit_number)
                 break
             
             time.sleep(1) # 暫停一下再重試
@@ -153,7 +153,7 @@ class BuildingPermitQuery:
         print("[!] 達到最大重試次數，查詢失敗。")
         return None
         
-    def parse_and_save_json(self, html_content, filename="result.json"):
+    def parse_and_save_json(self, html_content, filename="result.json", permit_number=None):
         """解析 HTML 表格內容，並以 JSON 格式儲存到 result.json"""
         soup = BeautifulSoup(html_content, 'html.parser')
         
@@ -206,15 +206,28 @@ class BuildingPermitQuery:
         # 依照 idNumber 進行降冪排序
         result_data.sort(key=lambda x: x.get("idNumber", ""), reverse=True)
 
-        updated_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        output_data = {
-            "updatedTime": updated_time,
-            "data": result_data
-        }
-
         try:
             with open(filename, "w", encoding="utf-8") as f:
-                json.dump(output_data, f, ensure_ascii=False, indent=4)
+                json.dump(result_data, f, ensure_ascii=False, indent=4)
+            print(f"[+] 已將查詢結果解析並存為: {filename} (共 {len(result_data)} 筆資料)")
+            
+            # 更新 updateTimeLog.json
+            if permit_number:
+                updated_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                log_filename = "updateTimeLog.json"
+                log_data = {}
+                try:
+                    with open(log_filename, "r", encoding="utf-8") as lf:
+                        log_data = json.load(lf)
+                except (FileNotFoundError, json.JSONDecodeError):
+                    pass
+                
+                log_data[permit_number] = updated_time
+                with open(log_filename, "w", encoding="utf-8") as lf:
+                    json.dump(log_data, lf, ensure_ascii=False, indent=4)
+                print(f"[+] 已更新 updateTimeLog.json 內的 {permit_number} 時間為: {updated_time}")
+            
+            return filename
             print(f"[+] 已將查詢結果解析並存為: {filename} (共 {len(result_data)} 筆資料)")
             return filename
         except Exception as e:
