@@ -398,7 +398,10 @@
 
             try {
                 // 加入時間戳記避免快取，根據輸入的建照號碼載入 json
-                const response = await fetch(`${permitNumber}.json?t=${new Date().getTime()}`);
+                const responsePromise = fetch(`${permitNumber}.json?t=${new Date().getTime()}`);
+                const logResponsePromise = fetch(`updateTimeLog.json?t=${new Date().getTime()}`).catch(() => null); // 不阻擋錯誤
+                
+                const [response, logResponse] = await Promise.all([responsePromise, logResponsePromise]);
 
                 if (!response.ok) {
                     if (response.status === 404) {
@@ -409,9 +412,16 @@
 
                 const jsonResponse = await response.json();
                 
-                // 相容舊格式 (純陣列) 與新格式 (包含 updatedTime 的物件)
+                // 相容舊格式 (純陣列) 與新格式 (包含 updatedTime 的物件，防呆)
                 const data = Array.isArray(jsonResponse) ? jsonResponse : (jsonResponse.data || []);
-                const updatedTime = jsonResponse.updatedTime || '--';
+                
+                let updatedTime = '--';
+                if (logResponse && logResponse.ok) {
+                    const logData = await logResponse.json();
+                    updatedTime = logData[permitNumber] || '--';
+                } else if (jsonResponse.updatedTime) { // 如果只抓到包裝過的舊格式作防呆
+                    updatedTime = jsonResponse.updatedTime;
+                }
                 
                 document.getElementById('lastCheckTime').textContent = updatedTime;
 
