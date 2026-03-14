@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>建造執照辦理進度查詢結果</title>
+    <!-- 引入 Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --primary-hover: #0b5ed7;
+            --secondary-color: #f8f9fa;
+            --text-main: #212529;
+            --text-muted: #6c757d;
+            --bg-color: #f5f7fa;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        .info-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--box-shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .summary-stats {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .data-table-wrapper {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        thead {
+            background-color: var(--secondary-color);
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        th {
+            padding: 1.25rem 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: middle;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background-color: rgba(13, 110, 253, 0.03);
+        }
+
+        /* 欄位特定樣式 */
+        .col-id {
+            font-family: monospace;
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .col-date {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .col-class {
+            font-weight: 500;
+            color: var(--text-main);
+            max-width: 250px;
+            line-height: 1.4;
+        }
+
+        .col-info {
+            color: #495057;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            max-width: 400px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        /* 狀態標籤顏色判斷 */
+        .status-success {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .status-warning {
+            background-color: #fff3cd;
+            color: #664d03;
+        }
+        
+        .status-pending {
+            background-color: #cff4fc;
+            color: #055160;
+        }
+
+        .status-error {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+
+        .status-default {
+            background-color: #e2e3e5;
+            color: #41464b;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 4rem 0;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+        
+        .error-message {
+            text-align: center;
+            padding: 3rem;
+            color: #842029;
+            background-color: #f8d7da;
+            border-radius: var(--border-radius);
+            margin-top: 2rem;
+        }
+        
+        .refresh-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .refresh-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        @media (max-width: 992px) {
+            .info-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1.5rem;
+            }
+        }
+
+        /* 響應式手機版表格設計 (RWD) */
+        @media (max-width: 768px) {
+            .data-table-wrapper {
+                background: transparent;
+                box-shadow: none;
+                border: none;
+            }
+            
+            table {
+                display: block;
+                width: 100%;
+            }
+
+            /* 隱藏原本的 table header */
+            thead {
+                display: none;
+            }
+
+            tbody, tr {
+                display: block;
+                width: 100%;
+            }
+
+            /* 將每一列 (tr) 變成卡片樣式 */
+            tbody tr {
+                background: white;
+                margin-bottom: 1.5rem;
+                border-radius: var(--border-radius);
+                box-shadow: var(--box-shadow);
+                padding: 1rem;
+                border: 1px solid #e9ecef;
+            }
+
+            /* 將 td 設定為區塊顯示，加上底部留白，並利用 grid 或 flex 排版標題與內容 */
+            td {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 0.8rem 0;
+                border-bottom: 1px dashed #e9ecef;
+                text-align: left;
+                width: auto;
+            }
+
+            td:last-child {
+                border-bottom: 0;
+                padding-bottom: 0;
+            }
+
+            /* 替每一個 td 加上虛擬元素標題 */
+            td::before {
+                content: attr(data-label);
+                font-size: 0.85rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                color: var(--text-muted);
+                margin-bottom: 0.3rem;
+                display: block;
+            }
+
+            /* 手機版字體調整 */
+            .col-class, .col-info {
+                max-width: 100%;
+            }
+
+            .header h1 {
+                font-size: 1.6rem;
+            }
+
+            .summary-stats {
+                flex-direction: column;
+                gap: 1.2rem;
+                width: 100%;
+            }
+
+            .refresh-btn {
+                width: 100%;
+                justify-content: center;
+                padding: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>建造執照辦理進度查詢系統</h1>
+        <p>新北市政府建管便民服務資訊網 (自動化抓取資料)</p>
+    </div>
+
+    <!-- 摘要與操作列 -->
+    <div class="info-card">
+        <div class="summary-stats">
+            <div class="stat-item">
+                <span class="stat-label">總筆數</span>
+                <span class="stat-value" id="totalCount">--</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">最新更新日期</span>
+                <span class="stat-value" style="font-size: 1.2rem; margin-top: 0.3rem;" id="latestDate">--</span>
+            </div>
+            <div class="stat-item" style="flex: 1; min-width: 250px;">
+                <label class="stat-label" for="permitInput" style="margin-bottom: 0.4rem;">查詢建照號碼 (格式: 年度-流水號)</label>
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="text" id="permitInput" value="111-00275" placeholder="例如: 111-00275" 
+                           style="padding: 0.6rem; border: 1px solid #ced4da; border-radius: 6px; font-size: 1rem; flex: 1; font-family: monospace;">
+                    <button class="refresh-btn" onclick="fetchData()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                          <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                          <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                        </svg>
+                        載入 / 更新
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 資料表格 -->
+    <div class="data-table-wrapper">
+        <table id="resultsTable">
+            <thead>
+                <tr>
+                    <th width="15%">掛號/辦理號碼</th>
+                    <th width="12%">辦理日期</th>
+                    <th width="20%">申請類別/項目</th>
+                    <th width="35%">起造人與建照地址</th>
+                    <th width="18%">審核進度</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <tr>
+                    <td colspan="5" class="loading">
+                        正在載入 result.json 的資料...<br>
+                        <small style="font-size: 0.9rem; margin-top: 0.5rem; display: block;">如果您直接以 file:// 協議開啟，瀏覽器可能因為 CORS 政策阻擋讀取，您會需要透過 Live Server 等擴充功能開啟網頁。</small>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // 取得 Badge 顏色的輔助函數
+    function getStatusBadgeClass(status) {
+        if (status.includes('同意備查') || status.includes('准予開工')) {
+            return 'status-success';
+        } else if (status.includes('補正') || status.includes('限期改正')) {
+            return 'status-warning';
+        } else if (status.includes('待審') || status.includes('掛號')) {
+            return 'status-pending';
+        } else if (status.includes('退件') || status.includes('駁回')) {
+            return 'status-error';
+        }
+        return 'status-default';
+    }
+
+    // 取得資料並渲染畫面
+    async function fetchData() {
+        const tableBody = document.getElementById('tableBody');
+        const permitNumber = document.getElementById('permitInput').value.trim() || '111-00275';
+        
+        // 更新網址列參數 (可選，方便分享網址)
+        const url = new URL(window.location);
+        url.searchParams.set('permit', permitNumber);
+        window.history.pushState({}, '', url);
+        
+        tableBody.innerHTML = `<tr><td colspan="5" class="loading">正在載入 ${permitNumber}.json ...</td></tr>`;
+        
+        try {
+            // 加入時間戳記避免快取，根據輸入的建照號碼載入 json
+            const response = await fetch(`${permitNumber}.json?t=${new Date().getTime()}`);
+            
+            if (!response.ok) {
+                if (response.status === 404) {
+                    throw new Error(`找不到 ${permitNumber}.json。請確認該建照號碼是否已透過 python 腳本更新。`);
+                }
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 3rem;">目前沒有查詢到任何資料</td></tr>`;
+                document.getElementById('totalCount').textContent = '0';
+                return;
+            }
+
+            // 更新統計資訊
+            document.getElementById('totalCount').textContent = data.length;
+            // 資料已經過 python script 排序，第一筆理當是最新的
+            document.getElementById('latestDate').textContent = data[0].date || '--';
+
+            // 清空載入中狀態並渲染 HTML
+            tableBody.innerHTML = '';
+            
+            data.forEach(item => {
+                const tr = document.createElement('tr');
+                
+                // 狀態樣式處理
+                const badgeClass = getStatusBadgeClass(item.status);
+                
+                // 執照資訊簡單排版 (將起造人與地址分行)
+                const formattedInfo = item.info
+                    .replace('建照地址：', '<br><span style="color:#6c757d; font-size:0.85em;">📍 地址：</span>')
+                    .replace('負責人：', '<br><span style="color:#6c757d; font-size:0.85em;">👤 負責人：</span>');
+
+                tr.innerHTML = `
+                    <td data-label="掛號/辦理號碼" class="col-id">${item.idNumber || '-'}</td>
+                    <td data-label="辦理日期" class="col-date">${item.date || '-'}</td>
+                    <td data-label="申請類別/項目" class="col-class">${item.class || '-'}</td>
+                    <td data-label="起造人與建照地址" class="col-info">${formattedInfo || '-'}</td>
+                    <td data-label="審核進度">
+                        <span class="status-badge ${badgeClass}">${item.status || '-'}</span>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+
+        } catch (error) {
+            console.error('Fetching JSON failed:', error);
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="5">
+                        <div class="error-message">
+                            <strong>無法讀取檔案。</strong><br>
+                            錯誤原因：${error.message}<br><br>
+                            <em>如果是在本機雙擊開啟 HTML 檔案，瀏覽器的安全性限制 (CORS) 會阻擋讀取本地 JSON。請嘗試透過 VS Code 的「Live Server」擴充套件，或使用 python 指令 <code>python -m http.server</code> 來瀏覽這個頁面。</em>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            document.getElementById('totalCount').textContent = '--';
+            document.getElementById('latestDate').textContent = '--';
+        }
+    }
+
+    // 支援 Enter 鍵搜尋
+    document.getElementById('permitInput').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            fetchData();
+        }
+    });
+
+    // 頁面載入時觸發
+    window.addEventListener('DOMContentLoaded', () => {
+        // 從網址列參數解析是否有預設 permit
+        const urlParams = new URLSearchParams(window.location.search);
+        const permitParam = urlParams.get('permit');
+        if (permitParam) {
+            document.getElementById('permitInput').value = permitParam;
+        }
+        fetchData();
+    });
+</script>
+
+</body>
+</html>

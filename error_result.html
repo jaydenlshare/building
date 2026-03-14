@@ -1,0 +1,543 @@
+
+
+
+
+
+
+	
+	
+	
+	
+	
+	
+
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>    <title>熱門搜尋－執照申請辦理進度-查詢條件｜新北市政府建管便民服務資訊網</title>    <meta charset="utf-8">    <meta http-equiv="X-UA-Compatible" content="IE=edge">    <meta name="viewport" content="width=device-width, initial-scale=1">    <meta name="copyright" content="新北市政府工務局">    <meta name="keywords" content="建管系統便民服務資訊網,執照存根查詢,執照基本資料,建物公安申報,建管即時通">    <meta name="description" content="新北市政府建管便民服務資訊網" />    <meta http-equiv="X-UA-Compatible" content="IE=edge">    <meta property="og:site_name" content="image.png" />    <meta property="og:image" content="assets/images/fb-img.png" />	 <meta http-equiv="pragma" content="no-cache">	 <meta http-equiv="expires" content="0">	 <meta http-equiv="cache-control" content="no-cache">    <link rel="icon" href="assets/images/favicon.png" type="image/ico" />    <link rel="stylesheet" href="assets/style/all.css">	 <script type="text/javascript" src="js/openclose.js"></script>	 <script type="text/javascript" src="js/ntcgbm.js" ></script>	 <script type="text/javascript" src="js/jquery.js" ></script></head><body id="top"><nav class="skip-nav" aria-label="跳過區塊">  <a class="skip-link" href="#topMenu">跳到主選單區</a>  <a class="skip-link" href="#main-content">跳到內容區</a>  <a class="skip-link" href="#Accesskey_B">跳到下方相關資訊連結區</a></nav><noscript><div class="container"><div class="d-flex justify-content-center bg-primary-xlight rounded p-4 text-primary border border-primary mt-6">很抱歉，網站的某些功能在JavaScript沒有啟用的狀態下無法正常使用。</div></div></noscript><style>* {  user-select: text !important;}</style><div class="wrapper bg-primary-xxxlight navbar-expand-lg">
+<div class="top">  <div class="site-logo">    <h1><a href="index.jsp" aria-label="新北市政府工務局 建管便民服務資訊網（回首頁）">      <img class="site-logo-img" src="./assets/images/logo.svg" alt="新北市政府工務局 建管便民服務資訊網">    </a></h1>  </div>  <img src="./assets/images/banner.jpg" id="banner" alt="" aria-hidden="true"></div><div class="top_link" id="topMenu" tabindex="-1">  <a href="#topMenu" class="accesskey" id="Accesskey_U" accesskey="U" aria-label="跳到主選單區"><span aria-hidden="true">:::</span></a>  <a class="d-flex align-items-center nav-link" href="home.jsp">    <img src="./assets/images/ic-sitemap.png" class="me-2" alt="" aria-hidden="true"><span>網站導覽</span>  </a>  <button class="navbar-toggler border-0 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#sideMenu" aria-label="展開側邊選單" aria-expanded="false">    <img src="./assets/images/ic-bar.svg" alt="" aria-hidden="true">  </button></div><a href="#main-content" class="key position-absolute" id="Accesskey_C" accesskey="C" aria-label="跳到內容區"><span aria-hidden="true">:::</span></a>
+<script>
+function chkData(){
+	var v = "";
+	v += document.getElementById('A1').value;
+	v += document.getElementById('B1').value + document.getElementById('B2').value + document.getElementById('B3').value;
+	v += document.getElementById('C1').value;
+	v += document.getElementById('D1').value + document.getElementById('D2').value + document.getElementById('D3').value;
+	v += document.getElementById('D4').value + document.getElementById('D5').value + document.getElementById('D6').value;
+	v += document.getElementById('D7').value + document.getElementById('D8').value;
+	v += document.getElementById('E1').value;
+	v += document.getElementById('F1').value;
+	v += document.getElementById('G1').value;
+	v += document.getElementById('H1').value;
+	v += document.getElementById('I1').value + document.getElementById('I2').value ;
+
+	var o_a1 = document.getElementById('A1');
+
+	var o_z = document.getElementById('Z1');
+
+	if(v.length==0){
+		alert('請至少輸入一項條件，以進行查詢!');
+		o_a1.focus();
+	}else{
+		if ($("input[name=Z1]").val() == ""){
+	        alert("驗證碼必須輸入!");
+	        o_z.focus();
+		}else{
+			$.post("CheckCode",
+		        {"code":$("input[name=Z1]").val()},
+		    	function(data,textStatus){
+					if (data == "true"){
+						document.getElementById('A1V').value = "";
+						document.getElementById('form_bp').submit();
+					}else{
+				        alert("驗證碼錯誤!");
+				        o_z.focus();
+			    	}
+		    	},
+		    "text");
+		}
+	}
+}
+
+function Redirect(){
+	location.href="bp_query.jsp";
+}
+
+function padLeft(obj, len){
+	val = obj.value.trim();
+	if(val.length>0 && len>0){
+		str="000000000"+val;
+		str=str.substring(str.length-len,str.length);
+		obj.value=str;
+	}else{
+		obj.value="";
+	}
+}
+
+</script>
+<div class="modal fade" id="A1VModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content"><div class="modal-header mt-3 py-2"><h3 class="modal-title fs-4 fw-medium" id="A1VModalLabel">申請案件類別列表</h3><button type="button" class="btn-close" data-bs-dismiss="modal" title="Close">關閉</button></div><div class="modal-body p-sm-4"><div class="row choose-list gx-2 gx-sm-3 gy-3 align-items-stretch"><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="">取消選擇</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="101">建造執照</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="102">建造變更設計</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="103">建照執照(山坡地)</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="104">建照變更設計(山坡地)</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="105">建造變更設計(純結構變更)</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="110">建照報備</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="201">使用執照</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="202">變更使用</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="203">雜項使用執照</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="204">臨時使用執照</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="205">變更使用執照(竣工) </button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="206">變更使用執照併室內裝修(書審)</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="207">(公家案)變更使用執照併室內裝修(竣工)</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="208">使照修改竣工圖併變更設計申請</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="301">雜項執照</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="302">雜項變更設計</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="303">雜項執照(山坡地)</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="304">雜項變更設計(山坡地)</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="401">拆除執照</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="402">拆除執照(公會審查)</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="501">開工報告</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="502">工程展期</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="503">施工勘驗</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="504">施工計劃</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="505">施工併開工</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="506">拆除完成</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="601">室內裝修書審</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="602">室內裝修竣工</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="603">簡易室內裝修</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="604">(工務局收文)簡易室裝(書審)</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="605">公會室裝(書審)</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="606">公會室裝(竣工)</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="607">公會簡裝(書審)</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="608">公會簡裝(竣工)</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="609">公會變使併室裝(竣工) </button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="701">變更起、承、監造人</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="801">執照內容變更</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="802">補發執照</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-A1V-item" data-bs-dismiss="modal" title="901">其他</button></div></div></div></div></div></div>
+<div class="modal fade" id="D1VModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content"><div class="modal-header mt-3 py-2"><h3 class="modal-title fs-4 fw-medium" id="D1VModalLabel">行政區列表</h3><button type="button" class="btn-close" data-bs-dismiss="modal" title="Close">關閉</button></div><div class="modal-body p-sm-4"><div class="row choose-list gx-2 gx-sm-3 gy-3 align-items-stretch"><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-D1V-item" data-bs-dismiss="modal" title="">取消選擇</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-D1V-item" data-bs-dismiss="modal" title="220">新北市板橋區</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-D1V-item" data-bs-dismiss="modal" title="236">新北市土城區</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-D1V-item" data-bs-dismiss="modal" title="242">新北市新莊區</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-D1V-item" data-bs-dismiss="modal" title="244">新北市林口區</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-D1V-item" data-bs-dismiss="modal" title="248">新北市五股區</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-D1V-item" data-bs-dismiss="modal" title="243">新北市泰山區</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-D1V-item" data-bs-dismiss="modal" title="231">新北市新店區</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-D1V-item" data-bs-dismiss="modal" title="223">新北市石碇區</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-D1V-item" data-bs-dismiss="modal" title="222">新北市深坑區</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-D1V-item" data-bs-dismiss="modal" title="232">新北市坪林區</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-D1V-item" data-bs-dismiss="modal" title="233">新北市烏來區</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-D1V-item" data-bs-dismiss="modal" title="208">新北市金山區</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-D1V-item" data-bs-dismiss="modal" title="207">新北市萬里區</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-D1V-item" data-bs-dismiss="modal" title="221">新北市汐止區</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-D1V-item" data-bs-dismiss="modal" title="251">新北市淡水區</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-D1V-item" data-bs-dismiss="modal" title="252">新北市三芝區</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-D1V-item" data-bs-dismiss="modal" title="253">新北市石門區</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-D1V-item" data-bs-dismiss="modal" title="249">新北市八里區</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-D1V-item" data-bs-dismiss="modal" title="224">新北市瑞芳區</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-D1V-item" data-bs-dismiss="modal" title="226">新北市平溪區</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-D1V-item" data-bs-dismiss="modal" title="227">新北市雙溪區</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-D1V-item" data-bs-dismiss="modal" title="228">新北市貢寮區</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-D1V-item" data-bs-dismiss="modal" title="247">新北市蘆洲區</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-D1V-item" data-bs-dismiss="modal" title="241">新北市三重區</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-D1V-item" data-bs-dismiss="modal" title="235">新北市中和區</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-D1V-item" data-bs-dismiss="modal" title="234">新北市永和區</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-D1V-item" data-bs-dismiss="modal" title="237">新北市三峽區</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-D1V-item" data-bs-dismiss="modal" title="239">新北市鶯歌區</button></div><div class="col-6 col-md-4 col-xl-3"><button class="btn choose-D1V-item" data-bs-dismiss="modal" title="238">新北市樹林區</button></div></div></div></div></div></div>
+<main id="main-content" class="main container-fluid" tabindex="-1">
+<div class="side-menu navbar-collapse collapse js-side-menu" id="sideMenu" tabindex="-1"><div class="side-menu-body scrollbar"><div class="accordion"><div class="accordion-item side-menu-item"><h2 class="accordion-header"><button class="accordion-button btn side-menu-btn border-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1" aria-controls="collapse1" aria-expanded="false"><img src="./assets/images/ic-binoculars.svg" class="me-3" alt="" aria-hidden="true"><span>熱門搜尋</span></button></h2><div id="collapse1" class="accordion-collapse collapse" data-bs-parent=".side-menu"><div class="bg-primary-xxlight"><ul class="side-menu-accordion"><li><a id="WEB_QUERY10" href="bm_query.jsp" class="side-menu-link">執照基本資料</a></li><li><a id="WEB_QUERY20" href="bm_query.jsp?rt=3" class="side-menu-link">執照存根資料</a></li><li><a id="WEB_QUERY30" href="bp_query.jsp" class="side-menu-link">執照申請進度查詢</a></li><li><a id="WEB_QUERY35" href="ph_query.jsp" class="side-menu-link">預售屋施工進度查詢</a></li><li><a id="WEB_QUERY40" href="br_query.jsp" class="side-menu-link">建物公共安全申報</a></li><li><a id="WEB_QUERY50" href="bc_query.jsp" class="side-menu-link">公安稽查表查詢</a></li></ul></div></div></div><div class="accordion-item side-menu-item"><h2 class="accordion-header"><button class="accordion-button btn side-menu-btn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2" aria-controls="collapse2" aria-expanded="false"><img src="./assets/images/ic-speaker.svg" class="me-3" alt="" aria-hidden="true"><span>宣導專區</span></button></h2><div id="collapse2" class="accordion-collapse collapse" data-bs-parent=".side-menu"><div class="bg-primary-xxlight"><ul class="side-menu-accordion"><li><a id="news43" href="news.jsp?ri=43" class="side-menu-link">建管即時通APP</a></li></ul></div></div></div><div class="accordion-item side-menu-item"><h2 class="accordion-header"><button class="accordion-button btn side-menu-btn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3" aria-controls="collapse3" aria-expanded="false"><img src="./assets/images/ic-link.svg" class="me-3" alt="" aria-hidden="true"><span>相關連結</span></button></h2><div id="collapse3" class="accordion-collapse collapse" data-bs-parent=".side-menu"><div class="bg-primary-xxlight"><ul class="side-menu-accordion"><li><a rel="noopener noreferrer" href="https://building-apply.publicwork.ntpc.gov.tw/kcgEpaper/" class="side-menu-link" target="_blank">建築圖電子副本下載<br>(另開新視窗)</a></li><li><a rel="noopener noreferrer" href="https://building-management.publicwork.ntpc.gov.tw/ntpcbm/ulogin_Parallel.jsp" class="side-menu-link" target="_blank">我要排審(建管即時通網頁版)<br>(另開新視窗)</a></li><li><a rel="noopener noreferrer" href="https://www.nlma.gov.tw/" class="side-menu-link" target="_blank">內政部國土管理署<br>(另開新視窗)</a></li><li><a rel="noopener noreferrer" href="https://building-apply.publicwork.ntpc.gov.tw/geoViewer/geoViewAction.do?infopage=1&pas=I30" class="side-menu-link" target="_blank">建築物地籍套繪查詢<br>(另開新視窗)</a></li><li><a rel="noopener noreferrer" href="https://cloudbm.nlma.gov.tw/CPTL/" class="side-menu-link" target="_blank">全國建築管理系統入口網<br>(另開新視窗)</a></li><li><a rel="noopener noreferrer" href="https://building-apply.publicwork.ntpc.gov.tw/arch/loginPage" class="side-menu-link" target="_blank">建築執照申請書表電子化系統<br>(另開新視窗)</a></li><li><a rel="noopener noreferrer" href="https://cpabm.cpami.gov.tw/PUBNetwork/index.jsp" class="side-menu-link" target="_blank">建築物公共安全檢查申報系統<br>(另開新視窗)</a></li><li><a rel="noopener noreferrer" href="https://service.ntpc.gov.tw/service/Index.action" class="side-menu-link" target="_blank">新北市政府雲端櫃檯<br>(另開新視窗)</a></li><li><a rel="noopener noreferrer" href="https://building-apply.publicwork.ntpc.gov.tw/ntnoo" class="side-menu-link" target="_blank">新北市高氯離子鋼筋混凝土建築物查詢<br>(另開新視窗)</a></li></ul></div></div></div></div></div></div><a href="#main-content" id="menu-exit" class="visually-hidden-focusable">  跳至主要內容</a>
+
+    <section class="side-content js-side-content close">
+        <div class="container">
+            <div class="side-content-header">
+                <h2 class="side-content-title">建築執照案件辦理進度查詢</h2>
+                <ol class="side-content-breadcrumb breadcrumb mb-0 ms-auto mb-2 mb-xl-0">
+                    <li class="breadcrumb-item"><a href="index.jsp" class="breadcrumb-link">首頁</a></li>
+                    <li class="breadcrumb-item">熱門搜尋</li>
+                    <li class="breadcrumb-item active">建築執照案件辦理進度查詢</li>
+                </ol>
+            </div>
+            <div class="bg-primary-xlight px-4 px-xxl-5 py-3 mb-5">
+                <div class="row">
+                    <div class="col-xxl-6">
+                        <ul class="text-list">
+                            <li class="text-list-item"><span>*</span>請至少輸入一項條件，以進行查詢!</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <form id="form_bp" action="bp_list.jsp" method="post">
+            <div class="row gx-3 align-items-start flex-xl-nowrap">
+                <div class="col-12 col-xl-auto">
+                    <div class="col-form-label text-xl-end" style="width: 100px;">申請案件類別</div>
+                </div>
+                <div class="col-auto w-100 flex-shrink-1">
+                    <div class="d-flex flex-wrap w-100">
+                        <div class="form-group mb-2 me-sm-3 w-mobile-100" style="width: 260px;">
+                            <label for="A1V" class="visually-hidden">申請案件類別</label>
+                            <input type="text" id="A1V" name="A1V" class="form-control w-100" value="請選擇..." data-bs-toggle="modal" data-bs-target="#A1VModal" readonly>
+                            <input type="hidden" id="A1" name="A1"  value="">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="row gx-3 align-items-start flex-xl-nowrap">
+                <div class="col-12 col-xl-auto">
+                    <label class="col-form-label text-xl-end" for="C1" style="width: 100px;">申請年月</label>
+                </div>
+                <div class="col-auto">
+                    <input type="text" id="C1" name="C1" class="form-control me-4 mb-2 w-mobile-100" style="width: 150px;">
+                    <span class="text-primary">
+                        民國113年1月即填入"11301"
+                    </span>
+                </div>
+            </div>
+            <hr>
+            <div class="row gx-3 align-items-start flex-xl-nowrap">
+                <div class="col-12 col-xl-auto">
+                    <div class="col-form-label text-xl-end" style="width: 100px;">掛號號碼</div>
+                </div>
+                <div class="col-auto w-100 flex-shrink-1">
+                    <div class="d-flex flex-wrap">
+                        <div class="form-group mb-2">
+                            <label for="B1" class="visually-hidden">掛號號碼-年度</label>
+                            <input type="text" id="B1" name="B1" class="form-control" style="width: 90px;" onchange="padLeft(this,3)" maxlength="3">
+                        </div>
+                        <div class="px-2 mt-1">-</div>
+                        <div class="form-group mb-2 me-sm-3 w-mobile-100" style="width: 210px;">
+                            <label for="B2" class="visually-hidden">掛號號碼-流水號</label>
+                            <input type="text" id="B2" name="B2" class="form-control w-100" onchange="padLeft(this,7)" maxlength="7">
+                        </div>
+                        <div class="form-group mb-2 w-mobile-100" style="width: 60px;">
+                            <label for="B3" class="visually-hidden">掛號號碼-變更次數</label>
+                            <input type="text" id="B3" name="B3" class="form-control w-100" onchange="padLeft(this,2)" maxlength="2">
+                        </div>
+                    </div>
+                    <span class="text-primary">
+                        掛號號碼為 113-0002232-00 即填入"113" - "0002232" - "00"
+                    </span>
+                </div>
+            </div>
+            <hr>
+            <div class="row gx-3 align-items-start flex-xl-nowrap">
+                <div class="col-12 col-xl-auto">
+                    <div class="col-form-label text-xl-end" style="width: 100px;">建照號碼</div>
+                </div>
+                <div class="col-auto w-100 flex-shrink-1">
+                    <div class="d-flex flex-wrap">
+                        <div class="form-group mb-2">
+                            <label for="I1" class="visually-hidden">建照號碼-年度</label>
+                            <input type="text" id="I1" name="I1" class="form-control" style="width: 90px;" onchange="padLeft(this,3)" maxlength="3">
+                        </div>
+                        <div class="px-2 mt-1">-</div>
+                        <div class="form-group mb-2 me-sm-3 w-mobile-100" style="width: 120px;">
+                            <label for="I2" class="visually-hidden">建照號碼-流水號</label>
+                            <input type="text" id="I2" name="I2" class="form-control w-100" onchange="padLeft(this,5)" maxlength="5">
+                        </div>
+                    </div>
+                    <span class="text-primary">
+                        請填入執照年度-執照流水號，例如"113"，"00006"
+                    </span>
+                </div>
+            </div>
+            <hr>
+            <div class="row gx-3 align-items-start flex-xl-nowrap">
+                <div class="col-12 col-xl-auto">
+                    <label class="col-form-label text-xl-end" for="E1" style="width: 100px;">申請人姓名</label>
+                </div>
+                <div class="col-auto">
+                    <input type="text" id="E1" name="E1" class="form-control mb-2 w-mobile-100" style="width: 500px;">
+                    <span class="text-primary">
+                        請填入全名或任意文字，例如起造人為新北市政府工務局可填入"新北市政府工務局"或"工務局"
+                    </span>
+                </div>
+            </div>
+            <hr>
+            <div class="row gx-3 align-items-start flex-xl-nowrap">
+                <div class="col-12 col-xl-auto">
+                    <label class="col-form-label text-xl-end" for="F1" style="width: 100px;">設計人姓名</label>
+                </div>
+                <div class="col-auto">
+                    <input type="text" id="F1" name="F1" class="form-control mb-2 w-mobile-100" style="width: 500px;">
+                    <span class="text-primary">
+                        請填入全名或任意文字，例如起造人為新北市政府工務局可填入"新北市政府工務局"或"工務局"
+                    </span>
+                </div>
+            </div>
+            <hr>
+            <div class="row gx-3 align-items-start flex-xl-nowrap">
+                <div class="col-12 col-xl-auto">
+                    <label class="col-form-label text-xl-end" for="G1" style="width: 100px;">承造人姓名</label>
+                </div>
+                <div class="col-auto">
+                    <input type="text" id="G1" name="G1" class="form-control mb-2 w-mobile-100" style="width: 500px;">
+                    <span class="text-primary">
+                        請填入全名或任意文字，例如起造人為新北市政府工務局可填入"新北市政府工務局"或"工務局"
+                    </span>
+                </div>
+            </div>
+            <hr>
+            <div class="row gx-3 align-items-start flex-xl-nowrap">
+                <div class="col-12 col-xl-auto">
+                    <label class="col-form-label text-xl-end" for="H1" style="width: 100px;">監造人姓名</label>
+                </div>
+                <div class="col-auto">
+                    <input type="text" id="H1" name="H1" class="form-control mb-2 w-mobile-100" style="width: 500px;">
+                    <span class="text-primary">
+                        請填入全名或任意文字，例如起造人為新北市政府工務局可填入"新北市政府工務局"或"工務局"
+                    </span>
+                </div>
+            </div>
+            <hr>
+            <div class="row gx-3 align-items-start flex-xl-nowrap">
+                <div class="col-12 col-xl-auto">
+                    <div class="col-form-label text-xl-end" style="width: 100px;">建築地址</div>
+                </div>
+                <div class="col-auto w-100 flex-shrink-1">
+                    <div class="d-flex flex-wrap mb-2">
+                        <div class="form-group mb-2 me-2 w-mobile-100">
+                            <label for="D1V" class="visually-hidden">行政區</label>
+                            <input type="text" id="D1V" name="D1V" class="form-control w-mobile-100" value="請選擇..." style="width: 180px;" data-bs-toggle="modal" data-bs-target="#D1VModal" readonly>
+                            <input type="hidden" id="D1" name="D1">
+                        </div>
+                        <div class="px-2 mt-1">(行政區)</div>
+                        <div class="form-group mb-2">
+                            <label for="D2" class="visually-hidden">村里鄰</label>
+                            <input type="text" id="D2" name="D2" class="form-control" style="width: 180px;">
+                        </div>
+                        <div class="px-2 mt-1">(村里鄰)</div>
+                        <div class="form-group mb-2">
+                            <label for="D3" class="visually-hidden">路街段</label>
+                            <input type="text" id="D3" name="D3" class="form-control" style="width: 180px;">
+                        </div>
+                        <div class="px-2 mt-1">(路街段)</div>
+                        <div class="form-group mb-2">
+                            <label for="D4" class="visually-hidden">巷</label>
+                            <input type="text" id="D4" name="D4" class="form-control" style="width: 100px;">
+                        </div>
+                        <div class="px-2 mt-1">巷</div>
+                        <div class="form-group mb-2">
+                            <label for="D5" class="visually-hidden">弄</label>
+                            <input type="text" id="D5" name="D5" class="form-control" style="width: 100px;">
+                        </div>
+                        <div class="px-2 mt-1">弄</div>
+                        <div class="form-group mb-2">
+                            <label for="D6" class="visually-hidden">號</label>
+                            <input type="text" id="D6" name="D6" class="form-control" style="width: 100px;" placeholder="號">
+                        </div>
+                        <div class="px-2 mt-1">-</div>
+                        <div class="form-group mb-2">
+                            <label for="D7" class="visually-hidden">之號</label>
+                            <input type="text" id="D7" name="D7" class="form-control" style="width: 100px;" placeholder="之號">
+                        </div>
+                        <div class="px-2 mt-1">號之</div>
+                        <div class="form-group mb-2">
+                            <label for="D8" class="visually-hidden">號之</label>
+                            <input type="text" id="D8" name="D8" class="form-control" style="width: 100px;" placeholder="號之">
+                        </div>
+                    </div>
+                    <div class="d-flex flex-wrap justify-content-between w-100">
+                        <span class="text-primary mb-2">
+                            請填入建築地址，例如"新北市萬里區"，"○○街"，"72巷"，"10號"
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="row gx-3 flex-xl-nowrap">
+                <div class="col-auto w-100 flex-shrink-1">
+                    <div class="d-flex flex-wrap align-items-start">
+                        <div class="form-group mb-2 me-2">
+                            <label for="Z1" class="visually-hidden">依圖形輸入驗證碼</label>
+                            <input type="text" id="Z1" name="Z1" class="form-control" placeholder="依圖形輸入驗證碼" style="width: 180px;" maxlength="4" autocomplete="off">
+                        </div>
+                        <img id="codeimg" src="ImageServlet" alt="驗證碼" style="height: 38px;" class="me-2">
+
+						<span id="rb_code1" role="button" tabindex="0" aria-label="更換驗證碼"
+							  class="btn btn-primary-light px-2 me-2" style="cursor:pointer">
+						  <img src="./assets/images/ic-reset.svg" alt="" aria-hidden="true">
+						</span>
+
+						<span id="rb_code2" role="button" tabindex="0" aria-label="播放驗證碼"
+							  class="btn btn-primary-light px-2 me-2" style="cursor:pointer">
+						  <img src="./assets/images/ic-voice.svg" alt="" aria-hidden="true">
+						</span>
+						<span id="filename"></span>
+						<audio id="audio" src="sound/start.mp3" aria-hidden="true"></audio>
+						<audio id="audio_start" src="sound/start.mp3" aria-hidden="true"></audio>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-center">
+                <button type="reset" class="btn btn-base text-white w-100 rounded-3 me-3" style="max-width: 180px;">清除</button>
+                <button type="button" class="btn btn-primary w-100 rounded-3" style="max-width: 180px;" onclick="chkData()">查詢</button>
+            </div>
+            </form>
+        </div>
+
+    </section>
+
+</main>
+<footer class="footer">    <div class="py-4 py-xxl-5">        <a href="#top" class="footer-gotop shadow-sm">回頁面頂端</a>        <a href="#Accesskey_B" class="key" id="Accesskey_B" accesskey="B" aria-label="跳到下方相關資訊連結區"><span aria-hidden="true">:::</span></a>        <div class="container footer-inner px-xl-4">            <ul class="icon-list mb-2 mb-xxl-0">                <li class="icon-list-item">                    <img src="./assets/images/ic-locate.svg" alt="" aria-hidden="true" class="me-2">                    <span>地　　址：新北市板橋區中山路一段161號2樓、5樓、13樓</span>                </li>                <li class="icon-list-item">                    <img src="./assets/images/ic-internet-web-browser.svg" alt="" aria-hidden="true" class="me-2">                    <span>瀏&nbsp;&nbsp;覽&nbsp;&nbsp;器：Chrome、Firefox、Edge、Safari為主</span>                </li>                <li class="icon-list-item">                    <img src="./assets/images/ic-service.svg" alt="" aria-hidden="true" class="me-2">                    <span>服務時間：週一至週五 09:00~12:00，13:30~17:30 (國定假日除外)</span>                </li>            </ul>            <ul class="icon-list mb-3 mb-xxl-0">                <li class="icon-list-item">                    <img src="./assets/images/ic-tel.svg" alt="" aria-hidden="true" class="me-2">                    <span>詢問執照相關問題：1999(新北市境內)、(02)2960-3456 (轉業務單位)</span>                </li>                <li class="icon-list-item">                    <img src="./assets/images/ic-tel.svg" alt="" aria-hidden="true" class="me-2">                    <span>詢問便民網</span><span style="color:red !important;">系統操作</span><span>：(04)2312-8629</span>                </li>                <li class="icon-list-item">                    <img src="./assets/images/ic-eye.svg" alt="" aria-hidden="true" class="me-2">                    <span>瀏覽次數：28,176,010</span>                </li>            </ul>            <a href="https://accessibility.moda.gov.tw/Applications/Detail?category=20191125183147" aria-label="無障礙網站檢測結果（另開新視窗）" target="_blank" rel="noopener noreferrer">			     <img src="./assets/images/demo-a.jpg" style="max-width: 120px;" alt="通過A無障礙網頁檢測">            </a>        </div></footer><script src="assets/js/jquery-ui.min.js"></script><script src="assets/js/bootstrap.bundle.min.js"></script><script src="assets/js/slick.js"></script><script src="assets/js/moment-with-locales.min.js"></script><script src="assets/js/tempusdominus-bootstrap-4.js"></script><script src="assets/js/select2.min.js"></script><script src="assets/js/footable.min.js"></script><script src="assets/js/script.js"></script><!--自訂-->
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // 設定焦點跳轉地圖：[Modal的ID] : [選完後要聚焦的下一個欄位ID]
+    const focusMap = {
+        'A1VModal': 'A3',    // 假設選完 A1V (執照類別) 後，跳到 A3 (號碼)
+        'D1VModal': 'D2'     // 選完 D1V (行政區) 後，跳到 D2 (村里鄰)
+    };
+
+    /**
+     * 通用綁定函式：處理點擊、Enter鍵選取、並自動關閉視窗
+     */
+    function bindPickerEvents(btnSelector, displayId, hiddenId) {
+        var buttons = document.querySelectorAll(btnSelector);
+        
+        buttons.forEach(function(btn) {
+            // 定義選取後的執行動作
+            function performSelect() {
+                var titleValue = btn.getAttribute('title');
+                var textValue = (btn.textContent || btn.innerText).trim();
+                var displayInput = document.getElementById(displayId);
+                var hiddenInput = document.getElementById(hiddenId);
+
+                if (textValue === '取消選擇') {
+                    displayInput.value = '請選擇...';
+                    hiddenInput.value = '';
+                } else {
+                    displayInput.value = textValue;
+                    hiddenInput.value = titleValue;
+                }
+
+                // 選取後主動隱藏 Modal
+                var modalEl = btn.closest('.modal');
+                if (modalEl) {
+                    var modalInstance = bootstrap.Modal.getInstance(modalEl);
+                    if (modalInstance) modalInstance.hide();
+                }
+            }
+
+            // 1. 監聽點擊
+            btn.addEventListener('click', performSelect);
+
+            // 2. 監聽鍵盤 Enter
+            btn.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault(); // 防止表單意外送出
+                    performSelect();
+                }
+            });
+        });
+    }
+
+    // --- 執行綁定 ---
+    
+    // 綁定 A1V (執照類別)
+    bindPickerEvents('.choose-A1V-item', 'A1V', 'A1');
+    
+    // 綁定 D1V (行政區)
+    bindPickerEvents('.choose-D1V-item', 'D1V', 'D1');
+
+
+    /**
+     * 監聽所有 Modal 的關閉事件，執行焦點跳轉
+     */
+    Object.keys(focusMap).forEach(function(modalId) {
+        var modalEl = document.getElementById(modalId);
+        if (modalEl) {
+            modalEl.addEventListener('hidden.bs.modal', function() {
+                var nextFieldId = focusMap[modalId];
+                var nextField = document.getElementById(nextFieldId);
+                if (nextField) {
+                    nextField.focus(); // 視窗關閉後聚焦到下一個欄位
+                }
+            });
+        }
+    });
+
+    /**
+     * 額外優化：讓主輸入框 A1V, D1V 按下 Enter 時也能開啟選單
+     */
+    ['A1V', 'D1V'].forEach(function(id) {
+        var input = document.getElementById(id);
+        if (input) {
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    input.click(); // 模擬點擊觸發開啟 Modal
+                }
+            });
+        }
+    });
+});
+</script>
+
+<script type="text/javascript">
+function reloadCode(){
+    var time = new Date().getTime();//創建不同的時間
+    $("#codeimg").attr("src","ImageServlet?time="+time);
+    chancelAudio();
+    document.getElementById("filename").innerHTML = "";
+}
+
+
+
+
+var index;
+var playlist= [];
+var audio_start;
+var audio;
+var myVar;
+var playPromise;
+var count = 0;
+window.onload = function() {           
+	audio_start= document.getElementById('audio_start');            
+	document.getElementById("filename").innerHTML = "";				
+}
+
+function chancelAudio() {
+	index= -1;
+	window.clearInterval(myVar);
+	audio_start.pause();
+}
+
+function readyAudio() {
+	chancelAudio();
+    //document.getElementById("filename").innerHTML = "載入中";
+    $.ajax(
+        {
+        	type: "POST",
+            url:'getplaylist.jsp',
+            async: false,//for IE
+            success: function (msg){ 
+                var json_obj = JSON.parse(msg); 
+                var msg_data = json_obj.data;
+				audio_start.src ="sound/start.mp3";
+				document.getElementById("filename").innerHTML = "播放中";
+				for (var i = 0; i < msg_data.length; i++) {
+                    playlist[i] ="sound/"+msg_data[i]+".mp3";						   					   
+                }						
+				playlist[msg_data.length] ="sound/end.mp3";
+				startAudio();	   
+            },
+            error: function (){
+                window.location.reload();
+            }
+        }
+    )
+}
+
+function startAudio() {
+	index = 0;	
+	audio_start.load();
+
+	playPromise = audio_start.play();	
+	if (playPromise !== undefined) {
+			playPromise.then(function(){
+				audio_start.play();
+				
+			})
+			.catch(function(error){
+				audio_start.pause();
+			});
+
+	}
+
+	if(audio_start){
+		audio_start.loop = false;
+		audio_start.addEventListener('ended', function () {  
+			window.clearInterval(myVar);
+			myVar = setInterval('nextAudio();', 1300);
+			
+		}, false);
+	}
+	
+}
+
+function nextAudio() {
+	if (index >=0) {
+		if (index >= playlist.length) {
+			index= -1;
+			document.getElementById("filename").innerHTML = "播放完畢";
+			chancelAudio();		
+		}else{	
+			//document.getElementById("filename").innerHTML = "播放中";
+			audio_start.src = playlist[index++];
+			audio_start.load();
+			playPromise = audio_start.play();	
+			if (playPromise !== undefined) {
+				playPromise.then(function(){
+					audio_start.play(); 
+				})
+				.catch(function(error){
+					audio_start.pause();
+				});
+			} 
+				
+		} 
+	}else {
+		chancelAudio();
+	}
+}
+document.getElementById('WEB_QUERY30').classList.add('show', 'active');
+document.getElementById('collapse1').classList.add('show', 'active');
+
+// Back / Forward 處理（不要覆蓋 onload）
+window.addEventListener("pageshow", function (event) {
+	if (event.persisted) {
+		$.ajax({ type: "POST", url: 'bm_clearsession.jsp' });
+		reloadCode();
+	}
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    // 綁定鍵盤事件
+    document.getElementById("Z1").addEventListener("keydown", function (event) {
+        if (event.key === "Enter") { // 偵測 Enter 鍵
+            event.preventDefault(); // 阻止默認提交行為
+            chkData();
+        }
+    });
+});
+
+</script>
+</body>
+</html>
+
