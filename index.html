@@ -475,9 +475,13 @@
             // 從網址列參數解析是否有預設 permit
             const urlParams = new URLSearchParams(window.location.search);
             const permitParam = urlParams.get('permit');
-            if (permitParam) {
-                document.getElementById('permitInput').textContent = permitParam;
+            
+            if (permitParam && permitParam.trim() !== '') {
+                document.getElementById('permitInput').textContent = permitParam.trim();
+            } else {
+                document.getElementById('permitInput').textContent = '111-00275';
             }
+            
             fetchData();
         });
     </script>
