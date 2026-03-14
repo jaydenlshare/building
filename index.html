@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>建造執照辦理進度查詢結果</title>
+    <title>辦理進度查詢</title>
     <!-- 引入 Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
@@ -325,8 +325,9 @@
 
     <div class="container">
         <div class="header">
-            <h1>建造執照辦理進度查詢系統</h1>
+            <h1>辦理進度查詢</h1>
             <p>新北市政府建管便民服務資訊網 (自動化抓取資料)</p>
+            <p>最後檢查時間: <span id="lastCheckTime">--</span></p>
         </div>
 
         <!-- 摘要與操作列 -->
@@ -406,7 +407,13 @@
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
-                const data = await response.json();
+                const jsonResponse = await response.json();
+                
+                // 相容舊格式 (純陣列) 與新格式 (包含 updatedTime 的物件)
+                const data = Array.isArray(jsonResponse) ? jsonResponse : (jsonResponse.data || []);
+                const updatedTime = jsonResponse.updatedTime || '--';
+                
+                document.getElementById('lastCheckTime').textContent = updatedTime;
 
                 if (data.length === 0) {
                     tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 3rem;">目前沒有查詢到任何資料</td></tr>`;
