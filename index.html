@@ -370,6 +370,81 @@
                 padding: 0.8rem;
             }
         }
+
+        /* 詳細進度展開樣式 */
+        .detail-row {
+            background-color: var(--secondary-color);
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .detail-panel {
+            padding: 1.5rem;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            margin: 0.5rem 1.5rem 1.5rem;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .process-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.9rem;
+        }
+
+        .process-table th {
+            background-color: var(--secondary-color);
+            padding: 0.6rem 1rem;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .process-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .process-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--primary-color);
+            cursor: pointer;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            transition: all 0.2s;
+        }
+
+        .toggle-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .toggle-btn.active {
+            background-color: var(--text-muted);
+            color: white;
+            border-color: var(--text-muted);
+        }
+
+        .chevron {
+            display: inline-block;
+            transition: transform 0.3s;
+        }
+
+        .toggle-btn.active .chevron {
+            transform: rotate(180deg);
+        }
     </style>
 </head>
 
@@ -461,6 +536,49 @@
         }
 
         // 取得資料並渲染畫面
+        function toggleDetail(btn, id) {
+            const detailRow = document.getElementById(`detail-${id}`);
+            const isActive = btn.classList.toggle('active');
+            detailRow.style.display = isActive ? 'table-row' : 'none';
+        }
+
+        function renderProcesses(processes) {
+            if (!processes || processes.length === 0) return '<p style="color:var(--text-muted);">無詳細進度資料</p>';
+            
+            let html = `
+                <div class="detail-panel">
+                    <h4 style="margin-top:0; margin-bottom:1rem; color:var(--text-main);">審核進度詳情</h4>
+                    <table class="process-table">
+                        <thead>
+                            <tr>
+                                <th>序號</th>
+                                <th>日期</th>
+                                <th>審核職階</th>
+                                <th>審核結果</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            processes.forEach(p => {
+                html += `
+                    <tr>
+                        <td>${p['序號']}</td>
+                        <td style="white-space:nowrap">${p['日期']}</td>
+                        <td>${p['審核職階']}</td>
+                        <td>${p['審核結果']}</td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            return html;
+        }
+
         async function fetchData() {
             const tableBody = document.getElementById('tableBody');
             const permitNumber = document.getElementById('permitInput').textContent.trim() || '111-00275';
@@ -527,10 +645,31 @@
                     <td data-label="申請類別/項目" class="col-class">${item.class || '-'}</td>
                     <td data-label="起造人與建照地址" class="col-info">${formattedInfo || '-'}</td>
                     <td data-label="審核進度">
-                        <span class="status-badge ${badgeClass}">${item.status || '-'}</span>
+                        <div style="display:flex; flex-direction:column; gap:0.5rem; align-items:flex-start;">
+                            <span class="status-badge ${badgeClass}">${item.status || '-'}</span>
+                            ${item.detail && item.detail.processes ? `
+                                <button class="toggle-btn active" onclick="toggleDetail(this, '${item.idNumber}')">
+                                    <span class="chevron">▼</span> 詳細進度
+                                </button>
+                            ` : ''}
+                        </div>
                     </td>
                 `;
                     tableBody.appendChild(tr);
+
+                    // 如果有詳細進度，插入展開列
+                    if (item.detail && item.detail.processes) {
+                        const detailTr = document.createElement('tr');
+                        detailTr.id = `detail-${item.idNumber}`;
+                        detailTr.className = 'detail-row';
+                        detailTr.style.display = 'table-row';
+                        detailTr.innerHTML = `
+                            <td colspan="5" style="padding:0;">
+                                ${renderProcesses(item.detail.processes)}
+                            </td>
+                        `;
+                        tableBody.appendChild(detailTr);
+                    }
                 });
 
             } catch (error) {
