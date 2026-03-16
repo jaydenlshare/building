@@ -154,6 +154,64 @@ class BuildingPermitQuery:
         print("[!] 達到最大重試次數，查詢失敗。")
         return None
         
+    def fetch_and_parse_detail(self, ri_val, permit_number):
+        """爬取最新一筆資料的 detail 並解析進度，存成 建案_detail.html"""
+        detail_url = f"{self.base_url}/bp_detail.jsp?ri={ri_val}"
+        print(f"[*] 正在抓取最新資料的詳細進度: {detail_url}")
+        
+        try:
+            response = self.session.get(detail_url, verify=False, timeout=10)
+            response.encoding = 'utf-8'
+            html_content = response.text
+            
+            # 儲存 html
+            html_filename = f"{permit_number}_detail.html"
+            with open(html_filename, "w", encoding="utf-8") as f:
+                f.write(html_content)
+            print(f"[+] 已將 detail HTML 存為: {html_filename}")
+            
+            # 準備解析
+            soup = BeautifulSoup(html_content, 'html.parser')
+            processes = []
+            
+            # 找到審核進度的標題
+            h3 = soup.find(lambda tag: tag.name == "h3" and "審核進度" in tag.text)
+            if h3:
+                table = h3.find_next_sibling("table")
+                if table:
+                    trs = table.find_all("tr")
+                    data_start_idx = -1
+                    # 找出 Header 列的下標
+                    for i, tr in enumerate(trs):
+                        ths = tr.find_all("th")
+                        if ths and len(ths) >= 4 and "序號" in ths[0].text:
+                            data_start_idx = i + 1
+                            break
+                    
+                    if data_start_idx != -1:
+                        # 從資料列開始處理
+                        for tr in trs[data_start_idx:]:
+                            tds = tr.find_all("td")
+                            if len(tds) >= 4:
+                                seq = tds[0].text.strip()
+                                date_val = tds[1].text.strip()
+                                rank = tds[2].text.strip()
+                                result = tds[3].text.strip()
+                                processes.append({
+                                    "序號": seq,
+                                    "日期": date_val,
+                                    "審核職階": rank,
+                                    "審核結果": result
+                                })
+                                
+            # 依日期 DESC 去排序進度
+            processes.sort(key=lambda x: x.get("日期", ""), reverse=True)
+            return {"processes": processes}
+            
+        except Exception as e:
+            print(f"[!] 爬取詳細進度時發生例外: {e}")
+            return None
+
     def parse_and_save_json(self, html_content, filename="result.json", permit_number=None):
         """解析 HTML 表格內容，並以 JSON 格式儲存到 result.json"""
         soup = BeautifulSoup(html_content, 'html.parser')
@@ -178,7 +236,7 @@ class BuildingPermitQuery:
             for row in rows:
                 cols = row.find_all('td')
                 if len(cols) >= 4:
-                    # 解析第一個欄位 (送件資訊) 包含日期與號碼
+                    # 解析第一個欄位 (送件資訊) 包含日期與號碼與 ri
                     send_info_html = str(cols[0])
                     # 用 Regex 抓取日期
                     date_match = re.search(r'日期：([0-9\-]+)', send_info_html)
@@ -186,6 +244,9 @@ class BuildingPermitQuery:
                     # 用 Regex 抓取號碼
                     id_match = re.search(r'號碼：([0-9]+)', send_info_html)
                     id_val = id_match.group(1) if id_match else ""
+                    # 用 Regex 抓取 href 內的 ri 參數
+                    ri_match = re.search(r'ri=([0-9]+)', send_info_html)
+                    ri_val = ri_match.group(1) if ri_match else ""
                     
                     # 解析第二個欄位 (申請類別)
                     class_val = cols[1].text.strip().replace('\n', '').replace('\r', '').replace(' ', '')
@@ -201,11 +262,20 @@ class BuildingPermitQuery:
                         "date": date_val,
                         "class": class_val,
                         "info": info_val,
-                        "status": status_val
+                        "status": status_val,
+                        "ri": ri_val
                     })
 
         # 依照 idNumber 進行降冪排序
         result_data.sort(key=lambda x: x.get("idNumber", ""), reverse=True)
+        
+        # 取得最新一筆的 detail
+        if result_data and permit_number:
+            latest = result_data[0]
+            if latest.get("ri"):
+                detail_data = self.fetch_and_parse_detail(latest["ri"], permit_number)
+                if detail_data:
+                    latest["detail"] = detail_data
 
         try:
             with open(filename, "w", encoding="utf-8") as f:
@@ -228,8 +298,6 @@ class BuildingPermitQuery:
                     json.dump(log_data, lf, ensure_ascii=False, indent=4)
                 print(f"[+] 已更新 updateTimeLog.json 內的 {permit_number} 時間為: {updated_time}")
             
-            return filename
-            print(f"[+] 已將查詢結果解析並存為: {filename} (共 {len(result_data)} 筆資料)")
             return filename
         except Exception as e:
             print(f"[!] 儲存 JSON 檔案發生錯誤: {e}")
@@ -278,11 +346,11 @@ def git_commit_and_push():
         except subprocess.CalledProcessError:
             subprocess.run(['git', 'config', '--global', 'user.email', git_email], check=True)
 
-        # 首先將所有 json 檔案與 HTML 加入追蹤
-        subprocess.run(['git', 'add', 'index.html', '*.json'], check=True)
+        # 首先將所有 json 檔案、主 HTML 與詳細進度 HTML 加入追蹤
+        subprocess.run(['git', 'add', 'index.html', '*.json', '*-*.html'], check=True)
         
         # 檢查已加入暫存區 (Staging Area) 的檔案是否有變動
-        status_result = subprocess.run(['git', 'status', '--porcelain', 'index.html', '*.json'], capture_output=True, text=True)
+        status_result = subprocess.run(['git', 'status', '--porcelain', 'index.html', '*.json', '*-*.html'], capture_output=True, text=True)
         
         if not status_result.stdout.strip():
             print("[+] 沒有偵測到檔案變動，略過提交。")
@@ -348,8 +416,8 @@ def run_job(force=False):
     # 新增可設定多筆建案查詢的陣列，格式為 ["年度-流水號", "年度-流水號"]
     permits = [
         "111-00275",
-        "110-00402",
-        "112-00141"
+        # "110-00402",
+        # "112-00141"
     ]
     
     for permit in permits:
