@@ -346,17 +346,17 @@ def git_commit_and_push():
         except subprocess.CalledProcessError:
             subprocess.run(['git', 'config', '--global', 'user.email', git_email], check=True)
 
-        # 首先將所有 json 檔案、主 HTML 與詳細進度 HTML 加入追蹤
-        subprocess.run(['git', 'add', 'index.html', '*.json', '*-*.html'], check=True)
+        # 首先將所有 json 檔案加入追蹤
+        subprocess.run(['git', 'add', '*.json'], check=True)
         
         # 檢查已加入暫存區 (Staging Area) 的檔案是否有變動
-        status_result = subprocess.run(['git', 'status', '--porcelain', 'index.html', '*.json', '*-*.html'], capture_output=True, text=True)
+        status_result = subprocess.run(['git', 'status', '--porcelain', '*.json'], capture_output=True, text=True)
         
         if not status_result.stdout.strip():
             print("[+] 沒有偵測到檔案變動，略過提交。")
             return
 
-        print("[*] 偵測到 HTML 或 JSON 檔案變動，開始執行 Git 推送...")
+        print("[*] 偵測到 JSON 檔案變動，開始執行 Git 推送...")
         
         # 產生時間戳記提交訊息
         commit_msg = f"update {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
@@ -386,22 +386,31 @@ def git_commit_and_push():
 
 
 def is_working_hours():
-    """檢查目前是否為 GMT+8 的上班時間 (週一至週五 10:00~17:00)"""
+    """
+    檢查目前是否為可執行時間:
+    1. 週一至週五 10:00~17:00
+    2. 每天 00:00~02:00
+    """
     now = datetime.now()
-    # 0 = Monday, 4 = Friday
+    
+    # 每天 00:00~02:59 (00:00, 01:00, 02:00 各整點啟動)
+    if 0 <= now.hour <= 2:
+        return True
+        
+    # 週一至週五 10:00~17:59 (10:00~17:00 各整點啟動)
     is_weekday = 0 <= now.weekday() <= 4
-    # 10:00 <= now <= 17:59 (17:00 是最後一次啟動時間)
-    is_hour_window = 10 <= now.hour <= 17
-    return is_weekday and is_hour_window
+    is_daytime_window = 10 <= now.hour <= 17
+    
+    return is_weekday and is_daytime_window
 
 
 def run_job(force=False):
     mode = os.environ.get('EXECUTION_MODE', 'PROD').upper()
     
-    # 如果不是強制執行，且不是 TEST 模式，則檢查是否在上班時間內
+    # 如果不是強制執行，且不是 TEST 模式，則檢查是否在可執行時間內
     if not force and mode != 'TEST':
         if not is_working_hours():
-            print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] 非執行時間 (六日或非 10:00-17:00)，跳過此次執行。")
+            print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] 非執行時間 (不在平日 10:00-17:00 或每天 00:00-02:00 範圍內)，跳過此次執行。")
             return
 
     print("\n" + "="*50)
@@ -466,7 +475,7 @@ if __name__ == "__main__":
     else:
         # 正式模式：每一小時執行一次 (內含時間視窗檢查)
         schedule.every(1).hours.do(run_job)
-        print("\n[*] 正式模式：進入待命狀態，將於每 1 小時自動執行 (僅限平日 10:00-17:00)...")
+        print("\n[*] 正式模式：進入待命狀態，將於每 1 小時自動執行 (平日 10:00-17:00 及 每天 00:00-02:00)...")
 
     try:
         while True:

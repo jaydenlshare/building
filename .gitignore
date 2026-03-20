@@ -13,3 +13,7 @@ docker-compose.override.yml
 # 作業系統暫存檔
 .DS_Store
 Thumbs.db
+
+# 忽略 HTML 檔案
+*.html
+!index.html
