@@ -527,31 +527,51 @@
         }
 
         // 取得資料並渲染畫面
-        function renderProcesses(processes) {
-            if (!processes || processes.length === 0) return '';
+        function renderProcesses(detail) {
+            const processes = detail.processes || [];
+            const opinion = detail.opinion || '';
+            
+            if (processes.length === 0 && !opinion) return '';
             
             let html = `
                 <div class="detail-container">
+            `;
+            
+            if (opinion) {
+                html += `
+                    <div style="margin-bottom: 1.25rem; padding: 0.8rem; background-color: var(--badge-error-bg); color: var(--badge-error-text); border-radius: 8px; border-left: 4px solid #dc3545; font-size: 0.9rem;">
+                        <div style="font-weight: 700; margin-bottom: 0.4rem;">⚠️ 審核意見</div>
+                        <div style="white-space: pre-wrap; line-height: 1.5;">${opinion}</div>
+                    </div>
+                `;
+            }
+
+            if (processes.length > 0) {
+                html += `
                     <div style="font-size: 0.85rem; font-weight:700; margin-bottom: 0.8rem; color: var(--text-muted);">
                         📋 詳細審核進度
                     </div>
                     <ul class="process-list">
-            `;
-            
-            processes.forEach(p => {
-                html += `
-                    <li class="process-item">
-                        <div class="process-date">${p['日期']}</div>
-                        <div class="process-info">
-                            <span class="process-rank">${p['審核職階']}</span>
-                            <span class="process-result">${p['審核結果']}</span>
-                        </div>
-                    </li>
                 `;
-            });
+                
+                processes.forEach(p => {
+                    html += `
+                        <li class="process-item">
+                            <div class="process-date">${p['日期']}</div>
+                            <div class="process-info">
+                                <span class="process-rank">${p['審核職階']}</span>
+                                <span class="process-result">${p['審核結果']}</span>
+                            </div>
+                        </li>
+                    `;
+                });
+                
+                html += `
+                        </ul>
+                `;
+            }
             
             html += `
-                    </ul>
                 </div>
             `;
             return html;
@@ -625,7 +645,7 @@
                     <td data-label="審核進度">
                         <div style="display:flex; flex-direction:column; gap:0.5rem; align-items:flex-start; width:100%;">
                             <span class="status-badge ${badgeClass}">${item.status || '-'}</span>
-                            ${item.detail && item.detail.processes ? renderProcesses(item.detail.processes) : ''}
+                            ${item.detail ? renderProcesses(item.detail) : ''}
                         </div>
                     </td>
                 `;

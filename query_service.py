@@ -204,9 +204,22 @@ class BuildingPermitQuery:
                                     "審核結果": result
                                 })
                                 
+            # 提取審核意見
+            opinion = ""
+            opinion_tag = soup.find(lambda tag: tag.name == "strong" and "審核意見：" in tag.text)
+            if opinion_tag:
+                # 取得 strong 所在的 td
+                parent_td = opinion_tag.find_parent("td")
+                if parent_td:
+                    # 獲取文本並處理換行，移除 "審核意見："
+                    opinion = parent_td.get_text(separator="\n").replace("審核意見：", "").strip()
+
             # 依日期 DESC 去排序進度
             processes.sort(key=lambda x: x.get("日期", ""), reverse=True)
-            return {"processes": processes}
+            return {
+                "processes": processes, 
+                "opinion": opinion
+            }
             
         except Exception as e:
             print(f"[!] 爬取詳細進度時發生例外: {e}")
