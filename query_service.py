@@ -154,22 +154,44 @@ class BuildingPermitQuery:
         print("[!] 達到最大重試次數，查詢失敗。")
         return None
         
-    def fetch_and_parse_detail(self, ri_val, permit_number):
+    def fetch_and_parse_detail(self, ri_val, permit_number, use_local_fallback=True):
         """爬取最新一筆資料的 detail 並解析進度，存成 建案_detail.html"""
         detail_url = f"{self.base_url}/bp_detail.jsp?ri={ri_val}"
-        print(f"[*] 正在抓取最新資料的詳細進度: {detail_url}")
+        html_content = None
         
+        # 1. 嘗試從網路抓取
         try:
+            print(f"[*] 正在抓取最新資料的詳細進度: {detail_url}")
             response = self.session.get(detail_url, verify=False, timeout=10)
-            response.encoding = 'utf-8'
-            html_content = response.text
-            
-            # 儲存 html
+            if response.status_code == 200:
+                response.encoding = 'utf-8'
+                html_content = response.text
+                
+                # 抓取成功則儲存 html 以供未來參考或備份
+                html_filename = f"{permit_number}_detail.html"
+                with open(html_filename, "w", encoding="utf-8") as f:
+                    f.write(html_content)
+                print(f"[+] 已將 detail HTML 存為: {html_filename}")
+            else:
+                print(f"[!] 抓取 detail 失敗，狀態碼: {response.status_code}")
+        except Exception as e:
+            print(f"[!] 爬取詳細進度時發生例外 (網路部分): {e}")
+
+        # 2. 如果網路抓取失敗，嘗試從本地檔案讀取 (Fallback)
+        if not html_content and use_local_fallback:
             html_filename = f"{permit_number}_detail.html"
-            with open(html_filename, "w", encoding="utf-8") as f:
-                f.write(html_content)
-            print(f"[+] 已將 detail HTML 存為: {html_filename}")
+            if os.path.exists(html_filename):
+                print(f"[*] 網路獲取失敗，嘗試從本地檔案讀取 detail: {html_filename}")
+                try:
+                    with open(html_filename, "r", encoding="utf-8") as f:
+                        html_content = f.read()
+                except Exception as e:
+                    print(f"[!] 讀取本地 detail 檔案時發生錯誤: {e}")
+
+        if not html_content:
+            return None
             
+        try:
             # 準備解析
             soup = BeautifulSoup(html_content, 'html.parser')
             processes = []
@@ -222,7 +244,7 @@ class BuildingPermitQuery:
             }
             
         except Exception as e:
-            print(f"[!] 爬取詳細進度時發生例外: {e}")
+            print(f"[!] 解析詳細進度時發生例外: {e}")
             return None
 
     def parse_and_save_json(self, html_content, filename="result.json", permit_number=None):
@@ -417,6 +439,35 @@ def is_working_hours():
     return is_weekday and is_daytime_window
 
 
+def reprocess_local_files():
+    """重新解析本地現有的 HTML 檔案並更新 JSON"""
+    print("\n[*] 正在開始重新處理本地 HTML 檔案...")
+    bot = BuildingPermitQuery()
+    permits = [
+        "111-00275",
+        "110-00402",
+        "112-00141"
+    ]
+    
+    for permit in permits:
+        html_file = f"{permit}.html"
+        if os.path.exists(html_file):
+            print(f"\n>>> 重新處理本地建照號碼: {permit}")
+            try:
+                with open(html_file, "r", encoding="utf-8") as f:
+                    html_content = f.read()
+                file_path = bot.parse_and_save_json(html_content, filename=f"{permit}.json", permit_number=permit)
+                if file_path:
+                    print(f"[+] {permit} 本地資料更新成功。")
+            except Exception as e:
+                print(f"[!] 處理 {permit} 本地資料時發生錯誤: {e}")
+        else:
+            print(f"[-] 找不到本地 HTML 檔案: {html_file}，跳過。")
+    
+    # 執行完畢後做 Git 操作
+    git_commit_and_push()
+
+
 def run_job(force=False):
     mode = os.environ.get('EXECUTION_MODE', 'PROD').upper()
     
@@ -472,6 +523,16 @@ def run_job(force=False):
 
 
 if __name__ == "__main__":
+    import sys
+    
+    # 檢查是否有 --resync 參數
+    if "--resync" in sys.argv:
+        print("="*50)
+        print("正在啟動本地資料同步模式...")
+        print("="*50)
+        reprocess_local_files()
+        sys.exit(0)
+
     mode = os.environ.get('EXECUTION_MODE', 'TEST').upper()
     
     print("="*50)
