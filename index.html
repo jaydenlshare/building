@@ -439,10 +439,73 @@
             }
         }
 
+        /* 審核意見泡泡樣式 */
+        .opinion-row td {
+            padding: 0;
+            background-color: transparent;
+        }
+
+        .opinion-card {
+            margin: 0.5rem 1.5rem 1.25rem 1.5rem;
+            padding: 1rem;
+            background-color: var(--badge-error-bg);
+            color: var(--badge-error-text);
+            border-radius: 8px;
+            border-left: 4px solid #dc3545;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .opinion-header {
+            font-weight: 700;
+            margin-bottom: 0.6rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .opinion-bubbles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-top: 0.4rem;
+        }
+
+        .opinion-bubble {
+            display: inline-block;
+            background-color: white;
+            color: var(--badge-error-text);
+            padding: 0.35rem 0.9rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            border: 1px solid rgba(220, 53, 69, 0.2);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+        }
+
+        .opinion-bubble:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.15);
+            border-color: #dc3545;
+        }
+
+        .opinion-simple {
+            white-space: pre-wrap;
+            line-height: 1.6;
+            background-color: white;
+            padding: 0.6rem 1rem;
+            border-radius: 6px;
+            border: 1px solid rgba(220, 53, 69, 0.1);
+        }
+
         @media (max-width: 768px) {
             .process-item {
                 grid-template-columns: 85px 1fr;
                 gap: 0.5rem;
+            }
+
+            .opinion-card {
+                margin: 0.5rem 0 1rem 0;
             }
         }
     </style>
@@ -500,12 +563,11 @@
             <table id="resultsTable">
                 <thead>
                     <tr>
-                        <th width="12%">掛號/辦理日期</th>
+                        <th width="15%">掛號/辦理日期</th>
                         <th width="15%">申請類別/項目</th>
-                        <th width="25%">起造人與建照地址</th>
-                        <th width="10%">審核進度</th>
-                        <th width="18%">審核意見</th>
-                        <th width="20%">詳細歷程</th>
+                        <th width="30%">起造人與建照地址</th>
+                        <th width="15%">審核進度</th>
+                        <th width="25%">詳細歷程</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
@@ -538,18 +600,46 @@
 
         // 渲染審核意見
         function renderOpinion(detail) {
-            let opinion = detail.opinion || '';
-            if (!opinion) return '<span style="color:var(--text-muted); font-size:0.9rem;">(無)</span>';
+            const rawOpinion = detail.opinion || '';
+            if (!rawOpinion) return '';
 
-            // 針對符號「。」、「；」或「：」後續若無換行則補上換行，提升閱讀性
-            opinion = opinion.replace(/([。；：])\s*(?![\n\r])/g, '$1\n');
+            // 1. 處理冒號分割 (將標題與後續項目分開)
+            const firstColonIndex = rawOpinion.indexOf('：');
+            
+            if (firstColonIndex === -1) {
+                // 無冒號，使用原有換行規則
+                const processed = rawOpinion.replace(/([。；])\s*(?![\n\r])/g, '$1\n');
+                return `
+                    <div class="opinion-card">
+                        <div class="opinion-header">⚠️ 審核意見</div>
+                        <div class="opinion-simple">${processed}</div>
+                    </div>
+                `;
+            }
 
-            return `
-                <div style="padding: 0.8rem; background-color: var(--badge-error-bg); color: var(--badge-error-text); border-radius: 8px; border-left: 4px solid #dc3545; font-size: 0.9rem; width: 100%; box-sizing: border-box;">
-                    <div style="font-weight: 700; margin-bottom: 0.4rem;">⚠️ 審核意見</div>
-                    <div style="white-space: pre-wrap; line-height: 1.5;">${opinion}</div>
+            const header = rawOpinion.substring(0, firstColonIndex + 1);
+            const itemsText = rawOpinion.substring(firstColonIndex + 1);
+            
+            // 2. 切分泡泡項目 (依據 。 或 ；)
+            // 將剩餘文字依據句點分開，並過濾掉空字串
+            const items = itemsText.split(/[。；]/).map(i => i.trim()).filter(i => i.length > 0);
+
+            let html = `
+                <div class="opinion-card">
+                    <div class="opinion-header">⚠️ ${header}</div>
+                    <div class="opinion-bubbles">
+            `;
+            
+            items.forEach(item => {
+                // 為每個項目加上泡泡樣式，並補回句點 (如果有內容的話)
+                html += `<span class="opinion-bubble">${item}。</span>`;
+            });
+
+            html += `
+                    </div>
                 </div>
             `;
+            return html;
         }
 
         // 渲染詳細歷程
@@ -656,14 +746,23 @@
                     <td data-label="審核進度">
                         <span class="status-badge ${badgeClass}">${item.status || '-'}</span>
                     </td>
-                    <td data-label="審核意見">
-                        ${item.detail ? renderOpinion(item.detail) : '<span style="color:var(--text-muted); font-size:0.9rem;">(無)</span>'}
-                    </td>
                     <td data-label="詳細歷程">
                         ${item.detail ? renderHistory(item.detail) : '<span style="color:var(--text-muted); font-size:0.9rem;">(無)</span>'}
                     </td>
                 `;
                     tableBody.appendChild(tr);
+
+                    // 如果有詳細意見，插入獨立一列顯示
+                    if (item.detail && item.detail.opinion) {
+                        const opinionTr = document.createElement('tr');
+                        opinionTr.className = 'opinion-row';
+                        opinionTr.innerHTML = `
+                            <td colspan="5">
+                                ${renderOpinion(item.detail)}
+                            </td>
+                        `;
+                        tableBody.appendChild(opinionTr);
+                    }
                 });
 
             } catch (error) {
