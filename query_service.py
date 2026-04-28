@@ -490,7 +490,8 @@ def run_job(force=False):
     permits = [
         "111-00275",
         "110-00402",
-        "112-00141"
+        "112-00141",
+        "108-00480"
     ]
     
     for permit in permits:
